@@ -81,32 +81,32 @@ def main():
             for index_j, j in enumerate(i):   
                 elemento = matriz[index][index_j]['rect'] 
                 
-                if elemento.collidepoint(pos):
+                if elemento.collidepoint(click_user):
                     posicao = matriz[index][index_j]['posicao_relativa'] 
                     print(f"Clicou no elemento {posicao}")
         
         
         
-        import math
+        # import math
         
-        dists_relativas = []
-        dist_relativa = 0
+        # dists_relativas = []
+        # dist_relativa = 0
         
-        for index, i in enumerate(matriz):    
+        # for index, i in enumerate(matriz):    
     
-            for index_j, j in enumerate(i):
-                dist_relativa = math.dist(click_user, matriz[index][index_j]['posicao'])  
-                dists_relativas.append({'dist': dist_relativa, 'posicao_relativa': matriz[index][index_j]['posicao_relativa']})
+        #     for index_j, j in enumerate(i):
+        #         dist_relativa = math.dist(click_user, matriz[index][index_j]['posicao'])  
+        #         dists_relativas.append({'dist': dist_relativa, 'posicao_relativa': matriz[index][index_j]['posicao_relativa']})
         
         
-        menor = dists_relativas[0]['dist']
-        chunck_click = 0
-        for i in dists_relativas:
-            if menor > i['dist']:
-                menor = i['dist']
-                chunck_click = i['posicao_relativa']
+        # menor = dists_relativas[0]['dist']
+        # chunck_click = 0
+        # for i in dists_relativas:
+        #     if menor > i['dist']:
+        #         menor = i['dist']
+        #         chunck_click = i['posicao_relativa']
                 
-        print(chunck_click)
+        # print(chunck_click)
         
         
         
@@ -124,7 +124,7 @@ def main():
                 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = event.pos
-                
+                click(click_user=pos, matriz=matriz)
                             
             
         display.blit( surface_game, (0, 0))
