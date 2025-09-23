@@ -6,9 +6,9 @@ import random
 ## largura. altura
 def main():
     pygame.init()
-
+    pygame.font.init()
     ## Tela global
-    w_display, h_display = 1000, 800
+    w_display, h_display = 600, 600
     
     ## Tela do Game
     w_game, h_game = (w_display - 200), h_display
@@ -33,7 +33,7 @@ def main():
         matriz_prob = lista.reshape(-1, 4)
         return matriz_prob
        
-    def background(width:int, height:int, screen, dimensao:int = 4):
+    def matriz_kernel(width:int, height:int, dimensao:int = 4):
         ## Criando Baus, Buracos e espaços vazios
         matriz_prob = matriz_probabilidade()
         
@@ -44,7 +44,7 @@ def main():
 
         var_w = int(width/dimensao)
         var_h = int(height/dimensao)
-                
+        
         ## Preenchendo com as coordenadas
         posic_relativa = 0
         for index, i in enumerate(matriz):    
@@ -52,28 +52,91 @@ def main():
             for index_j, j in enumerate(i):        
                 
                 posicao_tupla = (var_w*(index_j), var_h*(index))
+                
+                ##
                 elemento = pygame.Rect(posicao_tupla , (var_w, var_h ))
                 
-                matriz[index][index_j] = {'posicao': posicao_tupla, 
-                                          'valor': matriz_prob[index][index_j].item(), 'posicao_relativa': posic_relativa, 
-                                          'rect': elemento}
+                ##
+                elemento_ = pygame.Rect(posicao_tupla , (var_w/1.5, var_h/1.5 ))
+                elemento_.center = elemento.center
                 
-                ## Preenchendo com as cores
-                rgb = ( random.randint(0,255) , random.randint(0,255) , random.randint(0,255))
-                pygame.draw.rect( screen, rgb, elemento)
+                matriz[index][index_j] = {'posicao': posicao_tupla, 
+                                          'valor': matriz_prob[index][index_j].item(),
+                                          'posicao_relativa': posic_relativa,
+                                          'posicao_ralativa_h_matriz': index_j, 'posicao_ralativa_v_matriz': index, 
+                                          'rect': elemento_ }
+                
                 
                 posic_relativa+=1
-        
-        ## Preenchendo com as cores
-        # for index, i in enumerate(matriz):    
-        #     for index_j, j in enumerate(i):        
-        #         rgb = ( random.randint(0,255) , random.randint(0,255) , random.randint(0,255))
-        #         elemento = matriz[index][index_j]['rect']
-        #         pygame.draw.rect( screen, rgb, elemento)
-                
-        
         return matriz
     
+    def background(screen, matriz):
+        
+        for index, i in enumerate(matriz):    
+            for index_j, element in enumerate(i):        
+                
+                rgb = ( random.randint(0,255) , random.randint(0,255) , random.randint(0,255))
+                pygame.draw.rect( screen, rgb, element['rect'], border_radius=10)
+                
+            
+    font_a = pygame.font.SysFont('arial', 30)
+    
+    def blit_element(status:int , qtd_baus:int, rect_element, screen):
+        
+        if status == 0:    
+            text_surface = font_a.render(str(qtd_baus), True, (255,255,255))  # True = antialiasing
+            text_rect = text_surface.get_rect(center=rect_element.center)
+            screen.blit(text_surface, text_rect)
+            
+        if status == 1:    
+            text_surface = font_a.render('Bau!!!', True, (255,255,255))  # True = antialiasing
+            text_rect = text_surface.get_rect(center=rect_element.center)
+            screen.blit(text_surface, text_rect)
+    
+        if status == -1:    
+            text_surface = font_a.render('Buraco', True, (255,255,255))  # True = antialiasing
+            text_rect = text_surface.get_rect(center=rect_element.center)
+            screen.blit(text_surface, text_rect)
+            
+            
+    def search_elements (element, posicao_relativa:int, matriz) -> tuple[int, int]:
+        status = 0
+        qtd_trofeu = 0
+        
+        def search_matriz(p_horizontal:int, p_vertical:int, matriz=matriz) -> int: 
+            h_min = matriz[0][0]['posicao_ralativa_h_matriz']
+            h_max = matriz[0][-1]['posicao_ralativa_h_matriz']
+            v_min = matriz[0][0]['posicao_ralativa_v_matriz']
+            v_max = matriz[-1][-1]['posicao_ralativa_v_matriz']
+            
+            result = 0
+            if (p_horizontal >= h_min and p_vertical >= v_min):
+                if (p_horizontal <= h_max and p_vertical <= v_max):
+                    if matriz[p_vertical][p_horizontal]['valor'] == 1:
+                        result = 1
+
+            return result
+            
+        posicao_h = 0
+        posicao_v = 0
+        for i in matriz:
+            for j in i:
+                if j['posicao_relativa'] == posicao_relativa:
+                    posicao_h = j['posicao_ralativa_h_matriz']
+                    posicao_v = j['posicao_ralativa_v_matriz']
+                    
+                    status = j['valor']
+                    break
+        
+        if status != 1 or status != -1:
+            #print('posição n: ',posicao_h, posicao_v)     
+            qtd_trofeu += search_matriz(posicao_h+1, posicao_v)
+            qtd_trofeu += search_matriz(posicao_h-1, posicao_v)
+            qtd_trofeu += search_matriz(posicao_h, posicao_v-1)
+            qtd_trofeu += search_matriz(posicao_h, posicao_v+1)
+        
+        return qtd_trofeu, status
+
     
     def click (click_user:tuple, matriz):
         
@@ -83,35 +146,20 @@ def main():
                 
                 if elemento.collidepoint(click_user):
                     posicao = matriz[index][index_j]['posicao_relativa'] 
-                    print(f"Clicou no elemento {posicao}")
+                    qtd_bau, status = search_elements(element=elemento, posicao_relativa=posicao, matriz=matriz)
+                    return qtd_bau, status, elemento
+                    
         
         
-        
-        # import math
-        
-        # dists_relativas = []
-        # dist_relativa = 0
-        
-        # for index, i in enumerate(matriz):    
+    matriz_k = matriz_kernel(width = w_game, height = h_game)
+    background(screen=surface_game, matriz=matriz_k)
     
-        #     for index_j, j in enumerate(i):
-        #         dist_relativa = math.dist(click_user, matriz[index][index_j]['posicao'])  
-        #         dists_relativas.append({'dist': dist_relativa, 'posicao_relativa': matriz[index][index_j]['posicao_relativa']})
+    for i in matriz_k:
+        print('| ', end='')
+        for j in i:
+            print(j['valor'], end=' ')
+        print(' |')
         
-        
-        # menor = dists_relativas[0]['dist']
-        # chunck_click = 0
-        # for i in dists_relativas:
-        #     if menor > i['dist']:
-        #         menor = i['dist']
-        #         chunck_click = i['posicao_relativa']
-                
-        # print(chunck_click)
-        
-        
-        
-    matriz = background(w_game, h_game, surface_game)
-    
     run = True
     while run:
         
@@ -123,8 +171,9 @@ def main():
                 exit()
                 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                pos = event.pos
-                click(click_user=pos, matriz=matriz)
+                posicao_click = event.pos
+                qtd_bau, status, element = click(click_user=posicao_click, matriz=matriz_k)
+                blit_element(status=status , qtd_baus=qtd_bau, rect_element=element, screen=surface_game)
                             
             
         display.blit( surface_game, (0, 0))
@@ -144,5 +193,6 @@ def main():
     pygame.quit()
     
 
-main()
+if __name__ == '__main__':
+    main()
 
