@@ -13,7 +13,7 @@ def main():
     pygame.init()
     pygame.font.init()
     
-    w_display, h_display = 1000, 800
+    w_display, h_display = 900, 900
     
     ##
     from configs.screen import main as screens
@@ -30,10 +30,11 @@ def main():
                          size_elements = 1.5)
     
     ## 
-    from utils.background import main as background
-    background(screen=surface_game,
+    from utils.background import background_surface_game, background_display
+    background_surface_game(screen=surface_game,
                matriz=matriz_k)
 
+    background_display(display)
     ##
     from utils.fonts import main as fonts                
       
@@ -45,7 +46,7 @@ def main():
       
     ##
     from logic.search_elements import search_elements  
-    background(screen=surface_game, matriz=matriz_k)
+    #background(screen=surface_game, matriz=matriz_k)
     
     for i in matriz_k:
         print('| ', end='')
@@ -119,32 +120,13 @@ def main():
                 
                 total_jogadas = jogadas(posicao_click, total_jogadas, max_jogadas, history_points, jogada)
                 print(total_jogadas)
-                
-                # print(posicao_click)
-                # qtd_bau, status, element = click(click_user=posicao_click,
-                #                                  matriz=matriz_k,
-                #                                  search_elements=search_elements)
-                # print(f'{qtd_bau} | {status} | {element}')
-                # blit_elements(status=status, 
-                #               qtd_baus=qtd_bau,
-                #               rect_element=element,
-                #               screen=surface_game)
                             
-        display.blit( surface_head, (0, 0) ) 
-        pygame.draw.rect(surface_head, (255,255,0), rect=((0,0) , (1000,1000)))
-        #pygame.draw.rect( surface_head, (255,255,0) )
-        #display.blit( surface_game, (1, 1))
-        display.blit( surface_point, (w_game , h_head) )
+        #display.blit( surface_head, (0, 0) ) 
+        # pygame.draw.rect(surface_head, (255,255,0), rect=((0,0) , (1000,1000)))
+        #surface_game = surface_game.convert_alpha()
+        display.blit( surface_game, (100, h_head))
+        # display.blit( surface_point, (0 , 700) )
         
-        
-        
-        # pygame.draw.rect( surface_game, (255, 255, 255), rect=( (0,0 ) , (100, 100 )) )
-        # pygame.draw.rect( surface_game, (0, 255, 255), rect=( (100,0 ) , (100, 100 )) )
-
-        # pygame.draw.rect( surface_game, (0, 0, 255), rect=( (200,0 ) , (100, 100 )) )
-
-        # pygame.draw.rect( screen, (255, 255, 255), rect=( (screen_largura - screen_p_largura), 0, 
-        #                                                  screen_p_largura, screen_p_altura) ) #react (posição) (dimensão)
         pygame.display.update()
 
     pygame.quit()

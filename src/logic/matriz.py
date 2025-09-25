@@ -11,7 +11,7 @@ def matriz_probabilidade(q_bau:int = 6, q_buraco:int = 3, dimesao:int = 4):
     matriz_prob = lista.reshape(-1, 4)
     return matriz_prob
        
-def matriz_kernel(width:int, height:int, dimensao:int = 4, size_elements:int = 1):
+def matriz_kernel(width:int, height:int, dimensao:int = 4, size_elements:int = 1200):
     ## Criando Baus, Buracos e espaços vazios
     matriz_prob = matriz_probabilidade()
     
@@ -21,7 +21,7 @@ def matriz_kernel(width:int, height:int, dimensao:int = 4, size_elements:int = 1
         matriz.append([None]*dimensao)
 
     var_w = int(width/dimensao)
-    var_h = int(height/dimensao)
+    var_h = int(height/(dimensao+0.5))
     
     ## Preenchendo com as coordenadas
     posic_relativa = 0
@@ -32,17 +32,18 @@ def matriz_kernel(width:int, height:int, dimensao:int = 4, size_elements:int = 1
             posicao_tupla = (var_w*(index_j), var_h*(index))
             
             ##
-            elemento = pygame.Rect(posicao_tupla , (var_w, var_h ))
-            
+            elemento = pygame.Rect(posicao_tupla , (var_w, var_h+100 ))
+            #elemento.top = 100
             ##
-            elemento_ = pygame.Rect(posicao_tupla , (var_w/size_elements, var_h/size_elements ))
+            elemento_ = pygame.Rect(posicao_tupla , (100, 100 ))
             elemento_.center = elemento.center
             
             matriz[index][index_j] = {'posicao': posicao_tupla, 
                                         'valor': matriz_prob[index][index_j].item(),
                                         'posicao_relativa': posic_relativa,
                                         'posicao_ralativa_h_matriz': index_j, 'posicao_ralativa_v_matriz': index, 
-                                        'rect': elemento_ }
+                                        'rect': elemento_, 
+                                        'rect_2': elemento}
             
             
             posic_relativa+=1

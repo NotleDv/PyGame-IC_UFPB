@@ -8,11 +8,12 @@ def main(w_display:int = 800, h_display:int = 800):
     surface_head = pygame.Surface( (w_head, h_head) )
     
     ## Tela do Game
-    w_game, h_game = (w_display - 200), h_display - head_height
-    surface_game = pygame.Surface( (w_game, h_game) )
+    w_game, h_game = (w_display - 200), h_display - (head_height+100)
+    surface_game = pygame.Surface( (w_game, h_game) ,pygame.SRCALPHA )
+    #pygame.SRCALPHA
     
     ## Tela da Pontuação
-    w_point, h_point = (w_display - w_game), h_display - head_height
+    w_point, h_point = w_display, 100
     surface_point = pygame.Surface( (w_point, h_point) )
     surface_point.fill((255, 255, 255))
     
