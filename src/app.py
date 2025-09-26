@@ -1,15 +1,17 @@
-import pygame
+import pygame, time
 import sys, threading
 import random
 from rich.traceback import install
 install()
 ## x, y
 ## largura. altura
+stop_event = threading.Event()
 def main():
     offset_x_game, offset_y_game = 100, 70
     
     name_01 = 'Elton_A1'
     name_02 = 'Etlon_A2'
+    bbb = ''
     
     pygame.init()
     pygame.font.init()
@@ -49,6 +51,10 @@ def main():
     from logic.search_elements import search_elements  
     #background(screen=surface_game, matriz=matriz_k)
     
+    ##
+    from utils.background import back_progresso, front_progresso
+    rect_prog = pygame.Rect((170, 10, 530, 40))
+    
     for i in matriz_k:
         print('| ', end='')
         for j in i:
@@ -58,27 +64,30 @@ def main():
     run = True
     
     ###############
-    status_bar = {'progresso': 0, 'termino': False}
-    max_trabalho = 300
-    import time
-    # def trabalhar():
-    #     for i in range(max_trabalho):
-    #         status_bar["progresso"] = i
-    #         pygame.time.delay(20)
-    #     status_bar["terminou"] = True
-    
-    pygame.draw.rect(surface_head, (255, 255, 255), (170, 10, 530, 40))
-    
-    ###############
-    
+    #pygame.draw.rect(surface_head, (255, 255, 255), (170, 10, 530, 40))
     max_jogadas = 15
     history_points = {'play_01': 0, 'play_02':0}
     history_rects = []
     
     jogada = {'jogada_atual':0 , 'player_atual': 'play_01','jogada_anterior':0 , 'player_anterior': 'play_02'}
     total_jogadas = 0
+    status_bar = {'progresso': 0, 'termino': False}
     
+    def count__ (jogada):
+        if status_bar['termino']:
+            player_atual = jogada['player_atual']
+            player_anterior = jogada['player_anterior']
+            print(f'troca: play_atual{player_atual} | play_anterior{player_anterior}')
+            threading.Thread(target=time_play).start()
+            
     def jogadas(click_point, total_jogadas, max_jogadas, history_points, jogada):
+        
+        threading.Thread(target=time_play).start()
+        if status_bar['termino']:
+            player_atual = jogada['player_atual']
+            player_anterior = jogada['player_anterior']
+            print(f'troca: play_atual{player_atual} | play_anterior{player_anterior}')
+            
         if total_jogadas <= max_jogadas:
             player_atual = jogada['player_atual']
             player_anterior = jogada['player_anterior']
@@ -127,9 +136,17 @@ def main():
        
         return total_jogadas  
                 
-
-            
-    #threading.Thread(target=trabalhar).start()
+    ###############
+    def time_play():
+        for i in range(530, 1, -1):
+            status_bar["progresso"] = i
+            pygame.time.delay(20)
+        status_bar["terminou"] = True
+    
+    
+    #front_progresso(surface_head, rect_prog)  
+    threading.Thread(target=time_play).start()
+    ## --->>>  ##pygame.draw.rect(surface_head, (255,255,0), (0, 0, 160, 60))
     ###############
     while run:
         
@@ -140,23 +157,26 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
                 exit()
-                
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            
+            count__(jogada)
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 posicao_click = ( (mouse_x-offset_x_game), (mouse_y-offset_y_game))
                 total_jogadas = jogadas(posicao_click, total_jogadas, max_jogadas, history_points, jogada)
                 print(total_jogadas)
-                            
+                                        
         display.blit( surface_head, (0, 0) ) 
         
         # pygame.draw.rect(surface_head, (255,255,0), rect=((0,0) , (1000,1000)))
         #surface_game = surface_game.convert_alpha()
         # display.blit( surface_point, (0 , 700) )
         # calcula largura da barra de acordo com progresso
-        largura = int((status_bar['progresso'] / max_trabalho) * 400)  
-        #pygame.draw.rect(surface_head, (255, 255, 255), (0, 0, largura, 40))
-
+        back_progresso(surface_head, rect_prog)
+        largura = int(status_bar['progresso'])  
+        pygame.draw.rect(surface_head, "#F37049", (170, 20, largura, 25))
+        front_progresso(surface_head, rect_prog) 
     # if status_bar['termino']:
     #     font = pygame.font.SysFont("Arial", 40)
     #     txt = font.render("Concluído!", True, (0, 255, 0))

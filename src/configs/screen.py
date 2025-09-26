@@ -2,7 +2,7 @@ import pygame
 
 def main(w_display:int = 800, h_display:int = 800):
 
-    head_height = 50
+    head_height = 55
     ## Cabeçalho
     w_head, h_head = (w_display), head_height
     surface_head = pygame.Surface( (w_head, h_head) ,pygame.SRCALPHA)

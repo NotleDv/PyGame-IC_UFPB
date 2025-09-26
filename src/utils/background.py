@@ -1,5 +1,24 @@
 import pygame, random
 
+def back_progresso(screen, rect_base):
+    img_back = pygame.image.load('../assets/Back_Progresso.png')
+    img_back_w = img_back.get_width()
+    img_back_h = img_back.get_height()
+    img_back = pygame.transform.scale(img_back, (img_back_w/1.4, img_back_h/1.4))
+    img_back_rect = img_back.get_rect()
+    img_back_rect.center = rect_base.center
+    screen.blit(img_back, img_back_rect)
+    
+def front_progresso(screen, rect_base):
+    img_front = pygame.image.load('../assets/Front_Progresso.png')
+    img_front_w = img_front.get_width()
+    img_front_h = img_front.get_height()
+    img_front = pygame.transform.scale(img_front, (img_front_w/1.4, img_front_h/1.4))
+    img_front_rect = img_front.get_rect()
+    img_front_rect.center = rect_base.center
+    img_front_rect.top = -4
+    screen.blit(img_front, img_front_rect)
+
 def background_display(screen):
     img = pygame.image.load('../assets/background.png')
     img_w = img.get_width()
