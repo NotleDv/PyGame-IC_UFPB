@@ -21,7 +21,7 @@ def matriz_kernel(width:int, height:int, dimensao:int = 4, size_elements:int = 1
         matriz.append([None]*dimensao)
 
     var_w = int(width/dimensao)
-    var_h = int(height/(dimensao+0.5))
+    var_h = int(height/dimensao)
     
     ## Preenchendo com as coordenadas
     posic_relativa = 0
@@ -32,8 +32,8 @@ def matriz_kernel(width:int, height:int, dimensao:int = 4, size_elements:int = 1
             posicao_tupla = (var_w*(index_j), var_h*(index))
             
             ##
-            elemento = pygame.Rect(posicao_tupla , (var_w, var_h+100 ))
-            #elemento.top = 100
+            elemento = pygame.Rect(posicao_tupla , (var_w, var_h ))
+            
             ##
             elemento_ = pygame.Rect(posicao_tupla , (100, 100 ))
             elemento_.center = elemento.center
@@ -42,7 +42,7 @@ def matriz_kernel(width:int, height:int, dimensao:int = 4, size_elements:int = 1
                                         'valor': matriz_prob[index][index_j].item(),
                                         'posicao_relativa': posic_relativa,
                                         'posicao_ralativa_h_matriz': index_j, 'posicao_ralativa_v_matriz': index, 
-                                        'rect': elemento_, 
+                                        'rect': elemento_,
                                         'rect_2': elemento}
             
             

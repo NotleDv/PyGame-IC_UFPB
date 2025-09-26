@@ -4,7 +4,7 @@ def background_display(screen):
     img = pygame.image.load('../assets/background.png')
     img_w = img.get_width()
     img_h = img.get_height()
-    img = pygame.transform.scale(img, (img_w/1.1, img_h/1.1))
+    img = pygame.transform.scale(img, (img_w/1.4, img_h/1.4))
     screen.blit(img, (0, 0))
     
 def background_surface_game(screen, matriz):
@@ -19,11 +19,12 @@ def background_surface_game(screen, matriz):
             img_h = img.get_height()
             img = pygame.transform.scale(img, (img_w/3, img_h/3))
             img_rect = img.get_rect()
+            
             element_ = element['rect']
             img_rect.center = element_.center
             screen.blit(img, img_rect)
             # mascara_img = pygame.Surface(element['rect']).convert()
-            #pygame.draw.rect( screen, rgb, element_, border_radius=10)
+            #pygame.draw.rect( screen, rgb, element['rect'], border_radius=10)
             #pygame.draw.rect( screen, (255,255,255), element['rect_2'], border_radius=10)
             # circle = pygame.Surface([500,300]).convert()
             # circle.fill((255,0,255)) #make abnormal bg color

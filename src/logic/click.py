@@ -13,6 +13,7 @@ def click (click_user:tuple, matriz, search_elements):
                 element_ = elemento
                 condicion = True
                 posicao = matriz[index][index_j]['posicao_relativa']
+                print(">>>>> ",posicao, ' >>> ', element_)
                 break
 
     if condicion:
@@ -23,5 +24,5 @@ def click (click_user:tuple, matriz, search_elements):
         return qtd_bau, status, element_, validacao     
    
     else:
-        return [None]*3       
+        return [None]*4       
             

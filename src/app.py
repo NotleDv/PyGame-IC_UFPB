@@ -1,11 +1,12 @@
 import pygame
-import sys
+import sys, threading
 import random
 from rich.traceback import install
 install()
 ## x, y
 ## largura. altura
 def main():
+    offset_x_game, offset_y_game = 100, 70
     
     name_01 = 'Elton_A1'
     name_02 = 'Etlon_A2'
@@ -13,7 +14,7 @@ def main():
     pygame.init()
     pygame.font.init()
     
-    w_display, h_display = 900, 900
+    w_display, h_display = 700, 700
     
     ##
     from configs.screen import main as screens
@@ -57,32 +58,52 @@ def main():
     run = True
     
     ###############
+    status_bar = {'progresso': 0, 'termino': False}
+    max_trabalho = 300
+    import time
+    # def trabalhar():
+    #     for i in range(max_trabalho):
+    #         status_bar["progresso"] = i
+    #         pygame.time.delay(20)
+    #     status_bar["terminou"] = True
+    
+    pygame.draw.rect(surface_head, (255, 255, 255), (170, 10, 530, 40))
+    
+    ###############
     
     max_jogadas = 15
     history_points = {'play_01': 0, 'play_02':0}
+    history_rects = []
     
-    jogada = {'jogada_atual':0 , 'player_atual': 'play_01', 'name_play': name_01,'jogada_anterior':0 , 'player_anterior': 'play_02'}
+    jogada = {'jogada_atual':0 , 'player_atual': 'play_01','jogada_anterior':0 , 'player_anterior': 'play_02'}
     total_jogadas = 0
     
     def jogadas(click_point, total_jogadas, max_jogadas, history_points, jogada):
         if total_jogadas <= max_jogadas:
             player_atual = jogada['player_atual']
             player_anterior = jogada['player_anterior']
+            
             if player_atual != player_anterior:
                 
                 qtd_bau, status, element, validacao = click(click_user=click_point, matriz=matriz_k,search_elements=search_elements)
                 
-                blit_elements(status=status, 
-                                qtd_baus=qtd_bau,
-                                rect_element=element,
-                                screen=surface_game)
+                               
+                validacao_2 = False
+                if not element in history_rects: validacao_2 = True
+                
+                print('>>>>>>>>>> ', element)
                 potucao = 0
                 if status == 1:
                     potucao = 100
                 if status == -1:
                     potucao = -50
                     
-                if validacao:
+                if validacao and validacao_2:
+                    blit_elements(status=status, 
+                                    qtd_baus=qtd_bau,
+                                    rect_element=element,
+                                    screen=surface_game)
+                    
                     for key, value_ in history_points.items():
                         if player_atual == key:
                             history_points[key] += potucao
@@ -93,8 +114,12 @@ def main():
                     jogada['player_atual'] = player_anterior
                     jogada['player_anterior'] = player_atual
                     total_jogadas+=1
+                    
+                    history_rects.append(element)
+                    
                 print(history_points)
                 print(jogada)
+                
         else:
             pontucao_total_play_01 = history_points['play_01']
             pontucao_total_play_02 = history_points['play_02']
@@ -104,10 +129,11 @@ def main():
                 
 
             
-    
+    #threading.Thread(target=trabalhar).start()
     ###############
     while run:
         
+        display.blit( surface_game, (offset_x_game, offset_y_game))
         ## For de eventos
         for event in pygame.event.get():
             ## Fechamento
@@ -116,16 +142,25 @@ def main():
                 exit()
                 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                posicao_click = pygame.mouse.get_pos()
                 
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                posicao_click = ( (mouse_x-offset_x_game), (mouse_y-offset_y_game))
                 total_jogadas = jogadas(posicao_click, total_jogadas, max_jogadas, history_points, jogada)
                 print(total_jogadas)
                             
-        #display.blit( surface_head, (0, 0) ) 
+        display.blit( surface_head, (0, 0) ) 
+        
         # pygame.draw.rect(surface_head, (255,255,0), rect=((0,0) , (1000,1000)))
         #surface_game = surface_game.convert_alpha()
-        display.blit( surface_game, (100, h_head))
         # display.blit( surface_point, (0 , 700) )
+        # calcula largura da barra de acordo com progresso
+        largura = int((status_bar['progresso'] / max_trabalho) * 400)  
+        #pygame.draw.rect(surface_head, (255, 255, 255), (0, 0, largura, 40))
+
+    # if status_bar['termino']:
+    #     font = pygame.font.SysFont("Arial", 40)
+    #     txt = font.render("Concluído!", True, (0, 255, 0))
+    #     surface_head.blit(txt, (300, 320))
         
         pygame.display.update()
 
