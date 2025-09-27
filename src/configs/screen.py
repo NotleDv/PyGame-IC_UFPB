@@ -14,7 +14,7 @@ def main(w_display:int = 800, h_display:int = 800):
     
     ## Tela da Pontuação
     w_point, h_point = w_display, 100
-    surface_point = pygame.Surface( (w_point, h_point) ,pygame.SRCALPHA)
+    surface_point = pygame.Surface( (w_point, h_point) ,pygame.SRCALPHA )
     #surface_point.fill((255, 255, 255))
     
     display = pygame.display.set_mode( (w_display, h_display) )

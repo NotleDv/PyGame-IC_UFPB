@@ -1,5 +1,24 @@
 import pygame, random
 
+def back_points(screen, rect_point):
+    img_back = pygame.image.load('../assets/Back_Rodape.png')
+    img_back_w = img_back.get_width()
+    img_back_h = img_back.get_height()
+    img_back = pygame.transform.scale(img_back, (img_back_w/1.5, img_back_h/1.5))
+    img_back_rect = img_back.get_rect()
+    img_back_rect.center = rect_point.center
+    img_back_rect.top = 15
+    screen.blit(img_back, img_back_rect)
+
+def back_player_atual(screen):
+    img_back = pygame.image.load('../assets/Back_player_atual.png')
+    img_back_w = img_back.get_width()
+    img_back_h = img_back.get_height()
+    img_back = pygame.transform.scale(img_back, (img_back_w/1.4, img_back_h/1.4))
+    #img_back_rect = img_back.get_rect()
+    #img_back_rect.center = rect_base.center
+    screen.blit(img_back, (0,0))
+
 def back_progresso(screen, rect_base):
     img_back = pygame.image.load('../assets/Back_Progresso.png')
     img_back_w = img_back.get_width()
