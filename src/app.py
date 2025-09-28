@@ -1,23 +1,17 @@
 import pygame, time
 import sys, threading
-import random
-from rich.traceback import install
-install()
-
 # x, y
 # largura. altura
 stop_event = threading.Event()
 timer_thread = None ## MUDANÇA: Variável para manter uma referência à thread do timer atual
 
 def main():
-    
     run = True
     
     offset_x_game, offset_y_game = 100, 70
     
     name_01 = 'Elton_A1'
     name_02 = 'Etlon_A2'
-    bbb = ''
     
     pygame.init()
     pygame.font.init()
@@ -44,6 +38,11 @@ def main():
                             matriz=matriz_k)
 
     background_display(display)
+    
+    ##
+    from utils.pallet_color import main as pallet_color_
+    pallet_color = pallet_color_()
+    
     ##
     from utils.fonts import main as fonts             
       
@@ -82,6 +81,7 @@ def main():
     ###############
     max_jogadas = 16
     history_points = {'play_01': 0, 'play_02':0}
+    name_player = {'play_01': name_01, 'play_02':name_02}
     history_rects = []
     
     jogada = {'jogada_atual':0 , 'player_atual': 'play_01','jogada_anterior':0 , 'player_anterior': 'play_02'}
@@ -100,17 +100,20 @@ def main():
     
     ## MUDANÇA: A função do timer agora é mais simples. Ela apenas faz a contagem regressiva.
     def time_play():
-        status_bar['termino'] = False
-        print("::: NOVO TIMER INICIADO :::")
-        for i in range(530, -1, -1):
-            if stop_event.is_set():  # Verifica se foi pedido para parar
-                print("::: TIMER RESETADO POR JOGADA :::")
-                return # Encerra a thread
-            status_bar["progresso"] = i
-            time.sleep(0.02)
         
-        print("::: TEMPO ESGOTADO :::")
-        status_bar["termino"] = True # Sinaliza que o tempo acabou
+        print('::::: ',total_jogadas)
+        if total_jogadas < 16:
+            status_bar['termino'] = False
+            print("::: NOVO TIMER INICIADO :::")
+            for i in range(530, -1, -1):
+                if stop_event.is_set():  # Verifica se foi pedido para parar
+                    print("::: TIMER RESETADO POR JOGADA :::")
+                    return # Encerra a thread
+                status_bar["progresso"] = i
+                time.sleep(0.02)
+            
+            print("::: TEMPO ESGOTADO :::")
+            status_bar["termino"] = True # Sinaliza que o tempo acabou
             
     ## MUDANÇA: Função centralizada para resetar o timer.
     def reset_timer():
@@ -128,7 +131,6 @@ def main():
         timer_thread.start()
 
     def jogadas(click_point, total_jogadas, max_jogadas, history_points, jogada):
-        
         if total_jogadas >= max_jogadas:
             pontucao_total_play_01 = history_points['play_01']
             pontucao_total_play_02 = history_points['play_02']
@@ -183,8 +185,10 @@ def main():
     def blit_play_atual ():
         rect_play_atual = pygame.Rect((20, 10, 135, 50))
         
-        font = fonts(20)
-        texto = font.render(f"{jogada['player_atual']}", True, (255, 255, 255))
+        font = fonts(30)
+        player_atual = jogada['player_atual']
+        print(player_atual)
+        texto = font.render(str(name_player[player_atual]), True, pallet_color['cinza'])
         texto_rect = texto.get_rect(center=rect_play_atual.center)
         back_player_atual(surface_head)
         surface_head.blit(texto, texto_rect)
@@ -194,9 +198,10 @@ def main():
     def atualizacao_points(surface, history_points):
         rect_point = pygame.Rect((0, 0, 700, 100))
         back_points(surface_point, rect_point)
-        def create_text(size_font, info_text, rect_center, surface):
-            font = fonts(size_font, 'point_negrito')
-            texto = font.render(str(info_text), True, (0, 0, 0))
+        
+        def create_text(size_font, info_text, rect_center, surface, color, type_font='default'):
+            font = fonts(size_font, type_font)
+            texto = font.render(str(info_text), True, color)
             texto_rect = texto.get_rect(center=rect_center.center)
             #back_player_atual(surface)
             surface.blit(texto, texto_rect)
@@ -205,33 +210,41 @@ def main():
         rect_play_01.left = 95
         rect_play_01.top = 47    
         create_text(size_font= 30,
-                    info_text='play_1',
+                    info_text=name_player['play_01'],
                     rect_center=rect_play_01,
-                    surface=surface) 
+                    surface=surface,
+                    color= pallet_color['branco'],
+                    type_font='point_normal') 
             
         rect_play_02 = pygame.Rect((0,0,140,40))
         rect_play_02.left = 483
         rect_play_02.top = 47 
         create_text(size_font= 30,
-                    info_text='play_2',
+                    info_text=name_player['play_02'],
                     rect_center=rect_play_02,
-                    surface=surface)
+                    surface=surface,
+                    color=pallet_color['branco'],
+                    type_font='point_normal')
         #pp
         rect_point_p1 = pygame.Rect((0,0,93,40))
         rect_point_p1.left = 247
         rect_point_p1.top = 47    
-        create_text(size_font= 20,
+        create_text(size_font= 40,
                     info_text=history_points['play_01'],
                     rect_center=rect_point_p1,
-                    surface=surface)
+                    surface=surface,
+                    color=pallet_color['alaranjado'],
+                    type_font='point_negrito')
         
         rect_point_p2 = pygame.Rect((0,0,93,40))
         rect_point_p2.left = 378
         rect_point_p2.top = 47 
-        create_text(size_font= 20,
+        create_text(size_font= 40,
                     info_text=history_points['play_02'],
                     rect_center=rect_point_p2,
-                    surface=surface)
+                    surface=surface,
+                    color=pallet_color['alaranjado'],
+                    type_font='point_negrito')
         
     
     #############################################
@@ -254,8 +267,9 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 posicao_click = ( (mouse_x-offset_x_game), (mouse_y-offset_y_game))
-                total_jogadas = jogadas(posicao_click, total_jogadas, max_jogadas, history_points, jogada)
-                
+                total_jogadas= jogadas(posicao_click, total_jogadas, max_jogadas, history_points, jogada)
+        
+    
         ## MUDANÇA: Lógica de tempo esgotado simplificada e movida para o loop principal
         if status_bar['termino'] and run:
             player_atual = jogada['player_atual']
@@ -281,7 +295,7 @@ def main():
         # pygame.draw.rect( surface_point, (124,155,125), rect_c)
         # pygame.draw.rect( surface_point, (124,155,125), rect_d)
         pygame.display.update()
-        
+        #clock.tick(60)
 
     pygame.quit()
     sys.exit()
