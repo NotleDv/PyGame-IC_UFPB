@@ -80,17 +80,17 @@ def main():
     
     ###############
     max_jogadas = 16
-    history_points = {'play_01': 0, 'play_02':0}
-    name_player = {'play_01': name_01, 'play_02':name_02}
-    history_rects = []
+    history_points = {'play_01': 0, 'play_02':0} # Pontuação do jogador
+    name_player = {'play_01': name_01, 'play_02':name_02} # Nome dos jogadores
+    history_rects = [] # Quais rects já foram clicados
     
     jogada = {'jogada_atual':0 , 'player_atual': 'play_01','jogada_anterior':0 , 'player_anterior': 'play_02'}
     total_jogadas = 0
-    status_bar = {'progresso': 530, 'termino': True} 
     ###############
     
     
     ## Blit da estrutura da barra de regressão do tempo
+    status_bar = {'progresso': 530, 'termino': True} 
     def blit_bar_progress ():
         back_progresso(surface_head, rect_prog)
         largura = int(status_bar['progresso'])   
@@ -98,17 +98,21 @@ def main():
         pygame.draw.rect(surface_head, color, (170, 20, largura, 25))
         front_progresso(surface_head, rect_prog)
     
-    ## MUDANÇA: A função do timer agora é mais simples. Ela apenas faz a contagem regressiva.
+    ## Medindo o tempo do jogador
     def time_play():
         
-        print('::::: ',total_jogadas)
+        print('||| Jogos feitos: ',total_jogadas)
+        
+        ## Verificando se já foram a quantidade max de partidas
         if total_jogadas < 16:
-            status_bar['termino'] = False
-            print("::: NOVO TIMER INICIADO :::")
+            ## Dando inicio ao novo tempo
+            ### Inicia com False - Já que está começando do zero.
+            status_bar['termino'] = False 
+            
             for i in range(530, -1, -1):
                 if stop_event.is_set():  # Verifica se foi pedido para parar
                     print("::: TIMER RESETADO POR JOGADA :::")
-                    return # Encerra a thread
+                    return # Encerra a função na thread
                 status_bar["progresso"] = i
                 time.sleep(0.02)
             
@@ -117,7 +121,7 @@ def main():
             
     ## MUDANÇA: Função centralizada para resetar o timer.
     def reset_timer():
-        global timer_thread
+        #global timer_thread
         
         if timer_thread and timer_thread.is_alive():
             stop_event.set() # Sinaliza para a thread antiga parar
