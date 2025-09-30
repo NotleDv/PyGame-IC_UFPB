@@ -168,7 +168,11 @@ def main():
             print(f'|| JOGADA VÁLIDA || Trocando para: {jogada["player_atual"]}')
             print("Histórico de pontos:", history_points)
 
-            blit_play_atual_
+            blit_play_atual(jogada = jogada,
+                    name_player = name_player,
+                    pallet_color = pallet_color_,
+                    back_player_atual = back_player_atual,
+                    surface_head = surface_head)
             reset_timer(timer_thread)
             atualizacao_points(surface = surface_point, history_points = history_points, name_player = name_player, back_points = back_points, pallet_color = pallet_color_)
         return total_jogadas
@@ -176,11 +180,11 @@ def main():
     
     #############################################
     # Inicia o jogo
-    blit_play_atual_ = blit_play_atual(jogada = jogada, 
-                                       name_player = name_player, 
-                                       pallet_color = pallet_color_, 
-                                       back_player_atual = back_player_atual, 
-                                       surface_head = surface_head)
+    blit_play_atual(jogada = jogada,
+                    name_player = name_player,
+                    pallet_color = pallet_color_,
+                    back_player_atual = back_player_atual,
+                    surface_head = surface_head)
     reset_timer(timer_thread)
 
     atualizacao_points(surface = surface_point, 
@@ -218,7 +222,11 @@ def main():
                 
                 print(f'TROCA DE TURNO: {jogada["player_atual"]}')
                 
-                blit_play_atual_
+                blit_play_atual(jogada = jogada,
+                    name_player = name_player,
+                    pallet_color = pallet_color_,
+                    back_player_atual = back_player_atual,
+                    surface_head = surface_head)
                 reset_timer(timer_thread)
 
         blit_bar_progress()
