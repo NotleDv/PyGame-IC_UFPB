@@ -13,7 +13,6 @@ def click (click_user:tuple, matriz, search_elements):
                 element_ = elemento
                 condicion = True
                 posicao = matriz[index][index_j]['posicao_relativa']
-                print(">>>>> ",posicao, ' >>> ', element_)
                 break
 
     if condicion:

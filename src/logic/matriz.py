@@ -1,27 +1,33 @@
 import pygame, random
 import numpy as np
 
-def matriz_probabilidade(q_bau:int = 6, q_buraco:int = 3, dimesao:int = 4):
-       
-    lista = [0]*( (dimesao**2) - (q_bau + q_buraco) ) + [1]*q_bau + [-1]*q_buraco
-    
+def matriz_probabilidade():
+    lista = [0]*(7) + [1]*6 + [-1]*3
     random.shuffle(lista)
-    lista = np.array(lista)
-    
-    matriz_prob = lista.reshape(-1, 4)
-    return matriz_prob
+
+    matriz = []
+    count = 0
+    for i in range(4):
+        matriz.append([None]*4)
+        
+    for i in range(4):
+        for k in range(4):
+            matriz[i][k] = lista[count]
+            count+=1
+
+    return matriz
        
-def matriz_kernel(width:int, height:int, dimensao:int = 4, size_elements:int = 1200):
+def matriz_kernel(width:int, height:int):
     ## Criando Baus, Buracos e espaços vazios
     matriz_prob = matriz_probabilidade()
     
     ## Matriz Crua
     matriz = []
-    for i in range(dimensao):
-        matriz.append([None]*dimensao)
+    for i in range(4):
+        matriz.append([None]*4)
 
-    var_w = int(width/dimensao)
-    var_h = int(height/dimensao)
+    var_w = int(width/4)
+    var_h = int(height/4)
     
     ## Preenchendo com as coordenadas
     posic_relativa = 0
@@ -39,19 +45,18 @@ def matriz_kernel(width:int, height:int, dimensao:int = 4, size_elements:int = 1
             elemento_.center = elemento.center
             
             matriz[index][index_j] = {'posicao': posicao_tupla, 
-                                        'valor': matriz_prob[index][index_j].item(),
+                                        'valor': matriz_prob[index][index_j],
                                         'posicao_relativa': posic_relativa,
                                         'posicao_ralativa_h_matriz': index_j, 'posicao_ralativa_v_matriz': index, 
-                                        'rect': elemento_,
-                                        'rect_2': elemento}
+                                        'rect': elemento_}
             
             
             posic_relativa+=1
     return matriz
 
-def main(width:int, height:int, dimensao:int, size_elements):
+def main(width:int, height:int):
     return matriz_kernel(width = width,
-                         height = height,
-                         dimensao = dimensao,
-                         size_elements = size_elements)
+                         height = height)
 
+if __name__ == '__main__':
+    main()

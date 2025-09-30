@@ -2,10 +2,10 @@ import pygame, time
 import sys, threading
 # x, y
 # largura. altura
-stop_event = threading.Event()
-timer_thread = None ## MUDANÇA: Variável para manter uma referência à thread do timer atual
-
 def main():
+    stop_event = threading.Event()
+    timer_thread = {'timer_thread':None}
+    
     run = True
     
     offset_x_game, offset_y_game = 100, 70
@@ -28,9 +28,7 @@ def main():
     ## 
     from logic.matriz import main as create_matriz
     matriz_k = create_matriz(width = w_game,
-                             height = h_game,
-                             dimensao = 4,
-                             size_elements = 1.5)
+                             height = h_game)
     
     ## 
     from utils.background import background_surface_game, background_display, back_player_atual, back_points
@@ -40,14 +38,15 @@ def main():
     background_display(display)
     
     ##
-    from utils.pallet_color import main as pallet_color_
-    pallet_color = pallet_color_()
+    from utils.pallet_color import pallet_color, color_barra
+    pallet_color_ = pallet_color()
     
     ##
     from utils.fonts import main as fonts             
       
     ##
-    from logic.blit_elements import main as blit_elements   
+    from logic.blit_elements import blit_element, blit_play_atual, atualizacao_points
+    
     
     ##
     from logic.click import click
@@ -64,20 +63,7 @@ def main():
         for j in i:
             print(j['valor'], end=' ')
         print(' |')
-    
-    def color_barra (status_bar):
-        palet_color_barra = {'inicio': '#55B3F2', 'meio': '#EDF54B', 'final': '#F22929'}
-        cor = ''
         
-        if status_bar['progresso'] >= 300: 
-            cor = palet_color_barra['inicio']
-        elif status_bar['progresso'] < 300 and status_bar['progresso'] >= 100:
-            cor = palet_color_barra['meio']
-        else:
-            cor = palet_color_barra['final']
-            
-        return cor
-    
     ###############
     max_jogadas = 16
     history_points = {'play_01': 0, 'play_02':0} # Pontuação do jogador
@@ -93,9 +79,11 @@ def main():
     status_bar = {'progresso': 530, 'termino': True} 
     def blit_bar_progress ():
         back_progresso(surface_head, rect_prog)
-        largura = int(status_bar['progresso'])   
+        largura = int(status_bar['progresso']) 
+          
         color = color_barra(status_bar)
-        pygame.draw.rect(surface_head, color, (170, 20, largura, 25))
+        
+        pygame.draw.rect(surface_head, color, (170, 18, largura, 28))
         front_progresso(surface_head, rect_prog)
     
     ## Medindo o tempo do jogador
@@ -119,20 +107,20 @@ def main():
             print("::: TEMPO ESGOTADO :::")
             status_bar["termino"] = True # Sinaliza que o tempo acabou
             
-    ## MUDANÇA: Função centralizada para resetar o timer.
-    def reset_timer():
-        #global timer_thread
-        
-        if timer_thread and timer_thread.is_alive():
-            stop_event.set() # Sinaliza para a thread antiga parar
-            timer_thread.join(timeout=0.1) # Espera um pouco por ela
+    ## Reset da Thread
+    def reset_timer(timer_thread):
+        timer_thread_ = timer_thread['timer_thread']
+        if timer_thread_ and timer_thread_.is_alive(): # Se tem uma thread ou ela está ativa então...
+            stop_event.set() # Sinaliza para a thread parar
+            timer_thread_.join(0.1) # Atrasa a próxima execução até a thread parar
             
         stop_event.clear() # Limpa o evento para a nova thread
         status_bar['termino'] = False
         
         # Cria e inicia a nova thread
-        timer_thread = threading.Thread(target=time_play)
-        timer_thread.start()
+        timer_thread_ = threading.Thread(target=time_play)
+        timer_thread['timer_thread'] = timer_thread_
+        timer_thread_.start()
 
     def jogadas(click_point, total_jogadas, max_jogadas, history_points, jogada):
         if total_jogadas >= max_jogadas:
@@ -149,11 +137,11 @@ def main():
         player_atual = jogada['player_atual']
         player_anterior = jogada['player_anterior']
         
-        qtd_bau, status, element, validacao = click(click_user=click_point, matriz=matriz_k,search_elements=search_elements)
+        qtd_bau, status, element, click_valido = click(click_user=click_point, matriz=matriz_k,search_elements=search_elements)
         
-        validacao_2 = False
+        element_valido = False
         if element and not element in history_rects: 
-            validacao_2 = True
+            element_valido = True
         
         potucao = 0
         if status == 1:
@@ -161,8 +149,8 @@ def main():
         elif status == -1:
             potucao = -50
             
-        if validacao and validacao_2:
-            blit_elements(status=status, 
+        if click_valido and element_valido:
+            blit_element(status=status, 
                           qtd_baus=qtd_bau,
                           rect_element=element,
                           screen=surface_game)
@@ -180,83 +168,27 @@ def main():
             print(f'|| JOGADA VÁLIDA || Trocando para: {jogada["player_atual"]}')
             print("Histórico de pontos:", history_points)
 
-            # MUDANÇA: Blita o nome do novo jogador e reseta o timer de forma centralizada
-            blit_play_atual()
-            reset_timer()
-            atualizacao_points(surface_point, history_points)
+            blit_play_atual_
+            reset_timer(timer_thread)
+            atualizacao_points(surface = surface_point, history_points = history_points, name_player = name_player, back_points = back_points, pallet_color = pallet_color_)
         return total_jogadas
-
-    def blit_play_atual ():
-        rect_play_atual = pygame.Rect((20, 10, 135, 50))
-        
-        font = fonts(30)
-        player_atual = jogada['player_atual']
-        print(player_atual)
-        texto = font.render(str(name_player[player_atual]), True, pallet_color['cinza'])
-        texto_rect = texto.get_rect(center=rect_play_atual.center)
-        back_player_atual(surface_head)
-        surface_head.blit(texto, texto_rect)
-    #############################################
-    
-    
-    def atualizacao_points(surface, history_points):
-        rect_point = pygame.Rect((0, 0, 700, 100))
-        back_points(surface_point, rect_point)
-        
-        def create_text(size_font, info_text, rect_center, surface, color, type_font='default'):
-            font = fonts(size_font, type_font)
-            texto = font.render(str(info_text), True, color)
-            texto_rect = texto.get_rect(center=rect_center.center)
-            #back_player_atual(surface)
-            surface.blit(texto, texto_rect)
-        #p
-        rect_play_01 = pygame.Rect((0,0,140,40))
-        rect_play_01.left = 95
-        rect_play_01.top = 47    
-        create_text(size_font= 30,
-                    info_text=name_player['play_01'],
-                    rect_center=rect_play_01,
-                    surface=surface,
-                    color= pallet_color['branco'],
-                    type_font='point_normal') 
-            
-        rect_play_02 = pygame.Rect((0,0,140,40))
-        rect_play_02.left = 483
-        rect_play_02.top = 47 
-        create_text(size_font= 30,
-                    info_text=name_player['play_02'],
-                    rect_center=rect_play_02,
-                    surface=surface,
-                    color=pallet_color['branco'],
-                    type_font='point_normal')
-        #pp
-        rect_point_p1 = pygame.Rect((0,0,93,40))
-        rect_point_p1.left = 247
-        rect_point_p1.top = 47    
-        create_text(size_font= 40,
-                    info_text=history_points['play_01'],
-                    rect_center=rect_point_p1,
-                    surface=surface,
-                    color=pallet_color['alaranjado'],
-                    type_font='point_negrito')
-        
-        rect_point_p2 = pygame.Rect((0,0,93,40))
-        rect_point_p2.left = 378
-        rect_point_p2.top = 47 
-        create_text(size_font= 40,
-                    info_text=history_points['play_02'],
-                    rect_center=rect_point_p2,
-                    surface=surface,
-                    color=pallet_color['alaranjado'],
-                    type_font='point_negrito')
-        
+          
     
     #############################################
     # Inicia o jogo
-    blit_play_atual()
-    reset_timer() # MUDANÇA: Inicia o primeiro timer aqui
+    blit_play_atual_ = blit_play_atual(jogada = jogada, 
+                                       name_player = name_player, 
+                                       pallet_color = pallet_color_, 
+                                       back_player_atual = back_player_atual, 
+                                       surface_head = surface_head)
+    reset_timer(timer_thread)
 
-    atualizacao_points(surface_point, history_points)
+    atualizacao_points(surface = surface_point, 
+                       history_points = history_points, 
+                       name_player = name_player, 
+                       back_points = back_points, 
+                       pallet_color = pallet_color_)
+    
     
     while run:
         display.blit( surface_game, (offset_x_game, offset_y_game))
@@ -274,32 +206,24 @@ def main():
                 total_jogadas= jogadas(posicao_click, total_jogadas, max_jogadas, history_points, jogada)
         
     
-        ## MUDANÇA: Lógica de tempo esgotado simplificada e movida para o loop principal
+        ## 
         if status_bar['termino'] and run:
             player_atual = jogada['player_atual']
             player_anterior = jogada['player_anterior']
             
-            # Evita que a troca ocorra múltiplas vezes enquanto `termino` for True
-            if not timer_thread or not timer_thread.is_alive():
+            ## Inicialização da uma nova thread
+            if timer_thread['timer_thread'] or timer_thread['timer_thread'].is_alive():
                 jogada['player_atual'] = player_anterior
                 jogada['player_anterior'] = player_atual
                 
-                print(f'|| TEMPO ESGOTADO - TROCA DE TURNO || Trocando para: {jogada["player_atual"]}')
+                print(f'TROCA DE TURNO: {jogada["player_atual"]}')
                 
-                blit_play_atual()
-                reset_timer()
+                blit_play_atual_
+                reset_timer(timer_thread)
 
-        # rect_point = pygame.Rect((0, 0, 700, 100))
-        # pygame.draw.rect(surface_point, (255,255,2), rect_point)
-        
         blit_bar_progress()
         
-        # pygame.draw.rect( surface_point, (124,24,125), rect_a)
-        # pygame.draw.rect( surface_point, (124,24,125), rect_play_02)
-        # pygame.draw.rect( surface_point, (124,155,125), rect_c)
-        # pygame.draw.rect( surface_point, (124,155,125), rect_d)
         pygame.display.update()
-        #clock.tick(60)
 
     pygame.quit()
     sys.exit()
