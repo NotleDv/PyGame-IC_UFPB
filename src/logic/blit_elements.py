@@ -13,48 +13,52 @@ def blit_play_atual (jogada, name_player, pallet_color, back_player_atual, surfa
         back_player_atual(surface_head)
         surface_head.blit(texto, texto_rect)
 
-def blit_element(status:int , qtd_baus:int, rect_element, screen, font_set:str = fonts):
-    encontrou_nada_sound = pygame.mixer.Sound('../assets/Sounds/encontrou_nada.wav')
-    bau_sound = pygame.mixer.Sound('../assets/Sounds/bau.wav')
-    buraco_sound = pygame.mixer.Sound('../assets/Sounds/buraco.wav')
+def blit_element(status:int , qtd_baus:int, rect_element, screen,  animation:list, frame_animation, font_set:str = fonts):
     
+       
+    ## Funciont de renderização
+    def render(lista_animation, screen, element, frame_animation):
+        img = pygame.image.load('../assets/Background_game.png')
+        img_w = img.get_width()
+        img_h = img.get_height()
+        img = pygame.transform.scale(img, (img_w/2.5, img_h/2.5))
+        img_rect = img.get_rect()
+        img_rect.center = element.center
+        screen.blit(img, img_rect)
+
+
+        img = pygame.image.load(lista_animation[frame_animation['frame_atual']]).convert_alpha()
     
-    font_set = font_set(size_font=40, type_font='point_negrito')
-    pallet_color_ = pallet_color()
+        img.set_colorkey((0, 0, 0), pygame.RLEACCEL)
+        img_w = img.get_width()
+        img_h = img.get_height()
+        img = pygame.transform.scale(img, (img_w/7, img_h/7))
+        
+        img_rect = img.get_rect()
+        img_rect.center = element.center
+        
+        screen.blit(img, img_rect)
+        
+    
     if status == 0:    
+        font_set = font_set(size_font=40, type_font='point_negrito')
+        pallet_color_ = pallet_color()
         text_surface = font_set.render(str(qtd_baus), True, pallet_color_['cinza'])  # True = antialiasing
         text_rect = text_surface.get_rect(center=rect_element.center)
         screen.blit(text_surface, text_rect)
-        encontrou_nada_sound.set_volume(0.1)
-        encontrou_nada_sound.play()
         
     if status == 1:              
-        img = pygame.image.load(f'../assets/Bau.png')
-        img.set_colorkey((0, 0, 0), pygame.RLEACCEL)
-        img_w = img.get_width()
-        img_h = img.get_height()
-        img = pygame.transform.scale(img, (img_w/2.7, img_h/2.7))
-        
-        img_rect = img.get_rect()
-        img_rect.center = rect_element.center
-        
-        screen.blit(img, img_rect)
-        bau_sound.set_volume(0.5)
-        bau_sound.play()
+        render(lista_animation = animation, 
+               screen = screen,
+               element = rect_element,
+               frame_animation = frame_animation)
 
-    if status == -1:    
-        img = pygame.image.load(f'../assets/buraco.png')
-        img.set_colorkey((0, 0, 0), pygame.RLEACCEL)
-        img_w = img.get_width()
-        img_h = img.get_height()
-        img = pygame.transform.scale(img, (img_w/3, img_h/3))
-        
-        img_rect = img.get_rect()
-        img_rect.center = rect_element.center
-        
-        screen.blit(img, img_rect)
-        buraco_sound.set_volume(0.1)
-        buraco_sound.play()
+
+    if status == -1:   
+        render(lista_animation = animation, 
+               screen = screen,
+               element = rect_element,
+               frame_animation = frame_animation)
         
 def atualizacao_points(surface, history_points, name_player, back_points,  pallet_color):
         rect_point = pygame.Rect((0, 0, 700, 100))

@@ -1,20 +1,38 @@
 import pygame, time
-import sys, threading
+import sys
 # x, y
 # largura. altura
 def main():
-    stop_event = threading.Event()
-    timer_thread = {'timer_thread':None}
-    
-    run = True
-    
-    offset_x_game, offset_y_game = 100, 70
-    
-    name_01 = 'Elton_A1'
-    name_02 = 'Etlon_A2'
-    
     pygame.init()
     pygame.font.init()
+    pygame.mixer.init()
+    
+    ## 'Globais'
+    name_01 = 'Elton_A1'
+    name_02 = 'Etlon_A2'
+    clock = pygame.time.Clock()
+    run = True
+    blit_elements_click = {'status': 0, 'validacao': False, 'qtd_bau': None, 'rect_element': None, 'screen': None, 'animation': None}
+    
+    encontrou_nada_sound = pygame.mixer.Sound('../assets/Sounds/encontrou_nada.wav')
+    bau_sound = pygame.mixer.Sound('../assets/Sounds/bau.wav')
+    buraco_sound = pygame.mixer.Sound('../assets/Sounds/buraco.wav')
+    bau_sound.set_volume(0.5)
+    buraco_sound.set_volume(0.1)
+    encontrou_nada_sound.set_volume(0.1)
+    
+    sounds = {'encontrou_nada': encontrou_nada_sound,
+              'bau': bau_sound,
+              'buraco': buraco_sound}
+    
+    ## Cache animation
+    from utils.animation import load_animation_bau, load_animation_buraco
+    cache_animation_bau = load_animation_bau()
+    cache_animation_buraco = load_animation_buraco()
+    print(':: ',len(cache_animation_bau))
+    #print(cache_animation_bau)
+    offset_x_game, offset_y_game = 100, 70
+    
     
     w_display, h_display = 700, 700
     
@@ -76,84 +94,91 @@ def main():
     
     
     ## Blit da estrutura da barra de regressão do tempo
-    status_bar = {'progresso': 530, 'termino': True} 
-    def blit_bar_progress ():
-        back_progresso(surface_head, rect_prog)
-        largura = int(status_bar['progresso']) 
-          
-        color = color_barra(status_bar)
+    status_bar = {'larg_max': 530, 'progresso': 530, 'termino': False} 
+    
+    def count_bar_time(status_bar, get_time, reset):
+        if reset == True:
+            blit_bar_time( status_bar['larg_max'] )
+            status_bar['termino'] = False
+            status_bar['progresso'] = status_bar['larg_max']
+            
+        if status_bar['termino'] == False:
+            valor = status_bar['larg_max']/(get_time/0.2)
+            status_bar['progresso'] -= valor
+            blit_bar_time( int(status_bar['progresso']) )
+            
+        if status_bar['progresso'] < 0 :
+            status_bar['termino'] = True
         
+        if status_bar['termino'] == True:
+            blit_bar_time( status_bar['larg_max'] )
+            status_bar['progresso'] = status_bar['larg_max']
+            
+    def blit_bar_time (largura):
+        #Blit back
+        back_progresso(surface_head, rect_prog)
+        
+        #Blit maio
+        color = color_barra(status_bar)
         pygame.draw.rect(surface_head, color, (170, 18, largura, 28))
+
+        #Blit front
         front_progresso(surface_head, rect_prog)
     
     ## Medindo o tempo do jogador
-    def time_play():
+    def jogadas(click_point, total_jogadas, max_jogadas, history_points, jogada, animation_bau, animation_buraco, sounds):
         
-        print('||| Jogos feitos: ',total_jogadas)
-        
-        ## Verificando se já foram a quantidade max de partidas
-        if total_jogadas < 16:
-            ## Dando inicio ao novo tempo
-            ### Inicia com False - Já que está começando do zero.
-            status_bar['termino'] = False 
-            
-            for i in range(530, -1, -1):
-                if stop_event.is_set():  # Verifica se foi pedido para parar
-                    print("::: TIMER RESETADO POR JOGADA :::")
-                    return # Encerra a função na thread
-                status_bar["progresso"] = i
-                time.sleep(0.02)
-            
-            print("::: TEMPO ESGOTADO :::")
-            status_bar["termino"] = True # Sinaliza que o tempo acabou
-            
-    ## Reset da Thread
-    def reset_timer(timer_thread):
-        timer_thread_ = timer_thread['timer_thread']
-        if timer_thread_ and timer_thread_.is_alive(): # Se tem uma thread ou ela está ativa então...
-            stop_event.set() # Sinaliza para a thread parar
-            timer_thread_.join(0.1) # Atrasa a próxima execução até a thread parar
-            
-        stop_event.clear() # Limpa o evento para a nova thread
-        status_bar['termino'] = False
-        
-        # Cria e inicia a nova thread
-        timer_thread_ = threading.Thread(target=time_play)
-        timer_thread['timer_thread'] = timer_thread_
-        timer_thread_.start()
-
-    def jogadas(click_point, total_jogadas, max_jogadas, history_points, jogada):
+        # Verificando se já acabou o jogo
         if total_jogadas >= max_jogadas:
             pontucao_total_play_01 = history_points['play_01']
             pontucao_total_play_02 = history_points['play_02']
             print(f'>>>> Fim de jogo!! Play_01: {pontucao_total_play_01} | Play_02: {pontucao_total_play_02}')  
             return total_jogadas
         
-        # Se o tempo já acabou, o clique é inválido para esta jogada
+        # Caso o tempo tenha acabo e houve click
         if status_bar['termino']:
-             print("Clique ignorado, tempo já esgotado.")
+             print("Tempo acabou")
              return total_jogadas
 
+        ## Verificando o click
         player_atual = jogada['player_atual']
         player_anterior = jogada['player_anterior']
-        
+
         qtd_bau, status, element, click_valido = click(click_user=click_point, matriz=matriz_k,search_elements=search_elements)
-        
+        #print('>>>>> ', qtd_bau)
         element_valido = False
         if element and not element in history_rects: 
             element_valido = True
         
+        ## Animation
+        cache_animation = ''
+        
         potucao = 0
         if status == 1:
             potucao = 100
-        elif status == -1:
+            cache_animation = animation_bau
+
+            sounds['bau'].play()
+            
+        if status == -1:
             potucao = -50
+            cache_animation = animation_buraco
+            sounds['buraco'].play()
+            
+        if status == 0:
+            sounds['encontrou_nada'].play()
             
         if click_valido and element_valido:
-            blit_element(status=status, 
-                          qtd_baus=qtd_bau,
-                          rect_element=element,
-                          screen=surface_game)
+            
+            blit_elements_click.update({
+                'validacao': True,
+                'status': status, 
+                'qtd_bau': qtd_bau,
+                'rect_element': element,
+                'screen': surface_game,
+                'animation': cache_animation
+            })
+            #print(blit_elements_click)
             
             # Atualiza pontuação
             history_points[player_atual] = max(0, history_points[player_atual] + potucao)
@@ -169,12 +194,20 @@ def main():
             print("Histórico de pontos:", history_points)
 
             blit_play_atual(jogada = jogada,
-                    name_player = name_player,
-                    pallet_color = pallet_color_,
-                    back_player_atual = back_player_atual,
-                    surface_head = surface_head)
-            reset_timer(timer_thread)
-            atualizacao_points(surface = surface_point, history_points = history_points, name_player = name_player, back_points = back_points, pallet_color = pallet_color_)
+                            name_player = name_player,
+                            pallet_color = pallet_color_,
+                            back_player_atual = back_player_atual,
+                            surface_head = surface_head)
+            
+            count_bar_time(status_bar = status_bar, 
+                           get_time = time_clock, 
+                           reset = True)
+            
+            atualizacao_points(surface = surface_point, 
+                               history_points = history_points, 
+                               name_player = name_player, 
+                               back_points = back_points, 
+                               pallet_color = pallet_color_)
         return total_jogadas
           
     
@@ -185,7 +218,6 @@ def main():
                     pallet_color = pallet_color_,
                     back_player_atual = back_player_atual,
                     surface_head = surface_head)
-    reset_timer(timer_thread)
 
     atualizacao_points(surface = surface_point, 
                        history_points = history_points, 
@@ -193,43 +225,75 @@ def main():
                        back_points = back_points, 
                        pallet_color = pallet_color_)
     
-    
+    frame_animation = {'frame_atual': 0, 'concluido': False}
     while run:
         display.blit( surface_game, (offset_x_game, offset_y_game))
         display.blit( surface_head, (0, 0) ) 
         display.blit( surface_point , (0, 600))
         
+        clock.tick(30)
+        time_clock = clock.get_time()
+        
+        count_bar_time(status_bar = status_bar,
+                   get_time = time_clock,
+                   reset = None)
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                stop_event.set() # Sinaliza para a thread parar ao sair
                           
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                posicao_click = ( (mouse_x-offset_x_game), (mouse_y-offset_y_game))
-                total_jogadas= jogadas(posicao_click, total_jogadas, max_jogadas, history_points, jogada)
+                posicao_click = ( (mouse_x-offset_x_game), (mouse_y-offset_y_game) )
+                
+                if not blit_elements_click['validacao']:
+                    total_jogadas = jogadas (click_point = posicao_click, 
+                                            total_jogadas = total_jogadas,
+                                            max_jogadas = max_jogadas, 
+                                            history_points = history_points, 
+                                            jogada = jogada,
+                                            animation_bau = cache_animation_bau,
+                                            animation_buraco=cache_animation_buraco,
+                                            sounds = sounds)
         
-    
+        if blit_elements_click['validacao'] and run:
+            blit_element(status=blit_elements_click['status'], 
+                          qtd_baus=blit_elements_click['qtd_bau'],
+                          rect_element=blit_elements_click['rect_element'],
+                          screen=blit_elements_click['screen'],
+                          animation =blit_elements_click['animation'],
+                          frame_animation = frame_animation)
+            
+            if frame_animation['concluido'] == False:
+                frame_animation['frame_atual'] += 1
+            
+            lista_animation = blit_elements_click['animation']
+            if frame_animation['frame_atual'] >= len(lista_animation) -1:
+                frame_animation['frame_atual'] = len(lista_animation) -1
+                frame_animation['frame_atual'] = 0
+                blit_elements_click['validacao'] = False
+                
+        
         ## 
         if status_bar['termino'] and run:
             player_atual = jogada['player_atual']
             player_anterior = jogada['player_anterior']
             
-            ## Inicialização da uma nova thread
-            if timer_thread['timer_thread'] or timer_thread['timer_thread'].is_alive():
-                jogada['player_atual'] = player_anterior
-                jogada['player_anterior'] = player_atual
+            jogada['player_atual'] = player_anterior
+            jogada['player_anterior'] = player_atual
                 
-                print(f'TROCA DE TURNO: {jogada["player_atual"]}')
+            print(f'TROCA DE TURNO: {jogada["player_atual"]}')
                 
-                blit_play_atual(jogada = jogada,
-                    name_player = name_player,
-                    pallet_color = pallet_color_,
-                    back_player_atual = back_player_atual,
-                    surface_head = surface_head)
-                reset_timer(timer_thread)
+            blit_play_atual(jogada = jogada,
+                            name_player = name_player,
+                            pallet_color = pallet_color_,
+                            back_player_atual = back_player_atual,
+                            surface_head = surface_head)
+            
+            count_bar_time(status_bar = status_bar, 
+                           get_time = time_clock, 
+                           reset = True)
 
-        blit_bar_progress()
         
         pygame.display.update()
 

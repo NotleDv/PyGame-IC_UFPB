@@ -51,22 +51,15 @@ def background_surface_game(screen, matriz):
         
     for index, i in enumerate(matriz):    
         for index_j, element in enumerate(i): 
-
-            rgb = ( random.randint(0,255) , random.randint(0,255) , random.randint(0,255))
             
             img = pygame.image.load('../assets/Background_game.png')
             img_w = img.get_width()
             img_h = img.get_height()
-            img = pygame.transform.scale(img, (img_w/2.7, img_h/2.7))
+            img = pygame.transform.scale(img, (img_w/2.5, img_h/2.5))
             img_rect = img.get_rect()
             element_ = element['rect']
             img_rect.center = element_.center
             screen.blit(img, img_rect)
 
-                
-            
-def main(screen, matriz):
-    background_game(screen=screen,
-                    matriz=matriz)
 
     
