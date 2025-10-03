@@ -62,5 +62,13 @@ def background_surface_game(screen, matriz):
             img_rect.center = element_.center
             screen.blit(img, img_rect)
 
-
+def background_display_menu(screen):
+    img = pygame.image.load("../assets/telaini.png")
+    img = pygame.transform.scale(img, (700, 700))
+    screen.blit(img, (0,0))
+    
+def background_display_escolha_nomes(screen):
+    img = pygame.image.load("../assets/tplayers.png")
+    img = pygame.transform.scale(img, (700, 700))
+    screen.blit(img, (0,0))
     

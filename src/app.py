@@ -163,12 +163,12 @@ def main():
     while run:
         
         
-        
-        #### || JOGO ||
-        
         display.blit( surface_game, (offset_x_game, offset_y_game))
         display.blit( surface_head, (0, 0) ) 
         display.blit( surface_point , (0, 600))
+        
+        #### || JOGO ||
+        
         ###
         clock.tick(30)
         time_clock = clock.get_time()

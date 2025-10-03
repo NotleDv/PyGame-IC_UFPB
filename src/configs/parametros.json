@@ -1,27 +1,33 @@
 {
   "jogada": {
     "jogada_atual": 0,
-    "player_atual": "play_02",
+    "player_atual": "play_01",
     "jogada_anterior": 0,
-    "player_anterior": "play_01"
+    "player_anterior": "play_02"
   },
   "history_points": {
-    "play_01": 200,
-    "play_02": 100
+    "play_01": 0,
+    "play_02": 250
   },
   "name_player": {
-    "play_01": "name_01",
-    "play_02": "name_02"
+    "play_01": "elton",
+    "play_02": "elton2"
   },
   "return_click": {
-    "qtd_bau": 2,
+    "qtd_bau": 0,
     "status": 0,
     "click_valido": true
   },
   "status_bar": {
     "larg_max": 530,
-    "progresso": 413.80860071301146,
+    "progresso": 105.50717253176977,
     "termino": false
   },
-  "total_jogos": 7
+  "total_jogos": 10,
+  "tela_atual": "jogo",
+  "campo_ativo_name": 2,
+  "frame_animation": {
+    "frame_atual": 0,
+    "concluido": false
+  }
 }

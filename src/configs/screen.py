@@ -18,4 +18,5 @@ def config_screens(w_display:int = 800, h_display:int = 800):
     display = pygame.display.set_mode( (w_display, h_display) )
     
     return [[display, surface_game, surface_point, surface_head],
-            [w_game, h_game]]
+            [w_game, h_game],
+            ]

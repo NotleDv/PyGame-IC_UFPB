@@ -126,3 +126,25 @@ def atualizacao_points(surface, background_points,  pallet_color):
                     surface=surface,
                     color=pallet_color['alaranjado'],
                     type_font='point_negrito')
+        
+def blit_name_player(screen, rect_player_1, rect_player_2):
+    load_dotenv()
+    path_json = os.getenv("PATH_JSON")
+    
+    font = fonts(50)
+    name_player = read_json(path_json)['name_player']
+    
+    texto_p1 = font.render(name_player['play_01'], True, (60, 60, 60))
+    texto_p2 = font.render(name_player['play_02'], True, (60, 60, 60))
+    
+    screen.blit(texto_p1, (rect_player_1.x + 10, rect_player_1.y + 8))
+    screen.blit(texto_p2, (rect_player_2.x + 10, rect_player_2.y + 8))
+    
+    img_button_retornar = pygame.image.load("../assets/botret.png")
+    bot_retornar = pygame.transform.scale(img_button_retornar, (150, 50))
+    
+    img_button_avanca = pygame.image.load("../assets/bot_avançar.png")
+    bot_avanca = pygame.transform.scale(img_button_avanca, (120, 90))
+    
+    screen.blit(bot_retornar,(100,610))
+    screen.blit(bot_avanca, (480,595))
