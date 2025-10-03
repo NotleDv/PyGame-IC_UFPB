@@ -13,17 +13,15 @@
     "play_01": "name_01",
     "play_02": "name_02"
   },
-  "blit_elements_click": {
-    "status": 0,
-    "validacao": false,
+  "return_click": {
     "qtd_bau": null,
-    "rect_element": null,
-    "screen": null,
-    "animation": null
+    "status": null,
+    "click_valido": false
   },
   "status_bar": {
     "larg_max": 530,
     "progresso": 530,
     "termino": false
-  }
+  },
+  "total_jogos": 0
 }

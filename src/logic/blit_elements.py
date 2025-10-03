@@ -2,26 +2,30 @@ from utils.fonts import main as fonts
 import pygame
 from utils.pallet_color import pallet_color
 
-from utils.json_manager import write_json, read_json, write_json_restart
+from utils.json_manager import read_json
 import os
+from dotenv import load_dotenv
 
 def blit_play_atual (name_player, pallet_color, back_player_atual, surface_head):
-        path_json = os.path.join( os.getcwd(), 'configs', 'parametros.json' )
-        jogada = read_json(path_json)['jogada']
-        
-        rect_play_atual = pygame.Rect((20, 10, 135, 50))
-        
-        font = fonts(30)
-        player_atual = jogada['player_atual']
-        print(player_atual)
-        texto = font.render(str(name_player[player_atual]), True, pallet_color['cinza'])
-        texto_rect = texto.get_rect(center=rect_play_atual.center)
-        back_player_atual(surface_head)
-        surface_head.blit(texto, texto_rect)
-
-def blit_element(status:int , qtd_baus:int, rect_element, screen,  animation:list, frame_animation, font_set:str = fonts):
+    load_dotenv()
+    path_json = os.getenv("PATH_JSON")
+    jogada = read_json(path_json)['jogada']
     
-       
+    rect_play_atual = pygame.Rect((20, 10, 135, 50))
+    
+    font = fonts(30)
+    player_atual = jogada['player_atual']
+    print(player_atual)
+    texto = font.render(str(name_player[player_atual]), True, pallet_color['cinza'])
+    texto_rect = texto.get_rect(center=rect_play_atual.center)
+    back_player_atual(surface_head)
+    surface_head.blit(texto, texto_rect)
+
+def blit_element(rect_element, screen, animation:list, frame_animation, font_set:str = fonts):
+    load_dotenv()
+    path_json = os.getenv("PATH_JSON")
+    return_click = read_json(path_json)['return_click']   
+    
     ## Funciont de renderização
     def render(lista_animation, screen, element, frame_animation):
         img = pygame.image.load('../assets/Background_game.png')
@@ -45,11 +49,11 @@ def blit_element(status:int , qtd_baus:int, rect_element, screen,  animation:lis
         
         screen.blit(img, img_rect)
         
-    
+    status = return_click['status']
     if status == 0:    
         font_set = font_set(size_font=40, type_font='point_negrito')
         pallet_color_ = pallet_color()
-        text_surface = font_set.render(str(qtd_baus), True, pallet_color_['cinza'])  # True = antialiasing
+        text_surface = font_set.render(str(return_click['qtd_bau']), True, pallet_color_['cinza'])  # True = antialiasing
         text_rect = text_surface.get_rect(center=rect_element.center)
         screen.blit(text_surface, text_rect)
         
@@ -65,9 +69,16 @@ def blit_element(status:int , qtd_baus:int, rect_element, screen,  animation:lis
                element = rect_element,
                frame_animation = frame_animation)
         
-def atualizacao_points(surface, history_points, name_player, back_points,  pallet_color):
+def atualizacao_points(surface, background_points,  pallet_color):
+        load_dotenv()
+        path_json = os.getenv("PATH_JSON")
+
+        history_points = read_json(path_json)['history_points']
+        name_player = read_json(path_json)['name_player']
+
+        
         rect_point = pygame.Rect((0, 0, 700, 100))
-        back_points(surface, rect_point)
+        background_points(surface, rect_point)
         
         def create_text(size_font, info_text, rect_center, surface, color, type_font='default'):
             font = fonts(size_font, type_font)

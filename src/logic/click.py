@@ -1,38 +1,48 @@
 from utils.json_manager import write_json, read_json, write_json_restart
 import os
+from logic.search_elements import search_elements  
+from dotenv import load_dotenv
 
-def click (click_user:tuple, matriz, search_elements):
+def click (click_user:tuple, matriz):
+    load_dotenv()
+    path_json = os.getenv("PATH_JSON")
     
-    condicion = False
-    posicao = ''
+    validacao_local_click = False
+    posicao_relativa_matriz = ''
     element_ = ''
-    validacao = False
     
     for index, i in enumerate(matriz):    
         for index_j, j in enumerate(i):   
-            elemento = matriz[index][index_j]['rect'] 
+            elemento = matriz[index][index_j]['rect'] # Pego os rect de cada elemento da matriz
             
-            if elemento.collidepoint(click_user):
+            if elemento.collidepoint(click_user): # Verifico point de click foi em algum rect da matriz
                 element_ = elemento
-                condicion = True
-                posicao = matriz[index][index_j]['posicao_relativa']
+                validacao_local_click = True
+                posicao_relativa_matriz = matriz[index][index_j]['posicao_relativa']
                 break
 
-    if condicion:
-        qtd_bau, status = search_elements(posicao_relativa=posicao, matriz=matriz)
+    if validacao_local_click:
+        qtd_bau, status = search_elements(posicao_relativa=posicao_relativa_matriz, matriz=matriz)
         
-        validacao = True
+        result = {"qtd_bau": qtd_bau,
+                  "status": status,
+                  "click_valido": True }
+        write_json(path_json, 'return_click', result)
         
-        return qtd_bau, status, element_, validacao     
+        return element_     
    
     else:
-        return [None]*4       
+        return None       
 
-def jogadas(click_valido, total_jogadas, max_jogadas, history_points, sounds, element, history_rects, status):
-        path_json = os.path.join( os.getcwd(), 'configs', 'parametros.json' )
+def jogadas(click_valido, max_jogadas, sounds, element, history_rects, status):
+        load_dotenv()
+        path_json = os.getenv("PATH_JSON")
+        
         jogada = read_json(path_json)['jogada']
+        history_points = read_json(path_json)['history_points']
         
         # Verificando se já acabou o jogo
+        total_jogadas = read_json(path_json)['total_jogos']
         if total_jogadas >= max_jogadas:
             pontucao_total_play_01 = history_points['play_01']
             pontucao_total_play_02 = history_points['play_02']
@@ -73,6 +83,7 @@ def jogadas(click_valido, total_jogadas, max_jogadas, history_points, sounds, el
             validacao_jogada = True
             # Atualiza pontuação
             history_points[player_atual] = max(0, history_points[player_atual] + potucao)
+            write_json(path_json, 'history_points', history_points)
             
             # Troca de jogador
             jogada['player_atual'] = player_anterior
@@ -80,6 +91,7 @@ def jogadas(click_valido, total_jogadas, max_jogadas, history_points, sounds, el
             write_json(path_json, 'jogada', jogada)
             
             total_jogadas += 1
+            write_json(path_json, 'total_jogos', total_jogadas)
             
             history_rects.append(element)
             
@@ -87,5 +99,5 @@ def jogadas(click_valido, total_jogadas, max_jogadas, history_points, sounds, el
             print("Histórico de pontos:", history_points)
             
             
-        return total_jogadas, validacao_jogada
+        return validacao_jogada, history_rects
      

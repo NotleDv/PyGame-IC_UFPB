@@ -6,24 +6,22 @@
     "player_anterior": "play_01"
   },
   "history_points": {
-    "play_01": 0,
-    "play_02": 0
+    "play_01": 200,
+    "play_02": 100
   },
   "name_player": {
     "play_01": "name_01",
     "play_02": "name_02"
   },
-  "blit_elements_click": {
+  "return_click": {
+    "qtd_bau": 2,
     "status": 0,
-    "validacao": false,
-    "qtd_bau": null,
-    "rect_element": null,
-    "screen": null,
-    "animation": null
+    "click_valido": true
   },
   "status_bar": {
     "larg_max": 530,
-    "progresso": 471.62354450577845,
+    "progresso": 413.80860071301146,
     "termino": false
-  }
+  },
+  "total_jogos": 7
 }

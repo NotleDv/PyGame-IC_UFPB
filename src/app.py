@@ -1,84 +1,130 @@
 import pygame, time
 import sys, os
+from dotenv import load_dotenv
 # x, y
 # largura. altura
-
-def main():
-    pygame.init()
-    pygame.font.init()
-    pygame.mixer.init()
-    
-    ## 'Globais'
-    clock = pygame.time.Clock()
-    run = True
-    blit_elements_click = {'status': 0, 'validacao': False, 'qtd_bau': None, 'rect_element': None, 'screen': None, 'animation': None}
-    
+def cache_sound ():
+    ## Carregando as músicas
     encontrou_nada_sound = pygame.mixer.Sound('../assets/Sounds/encontrou_nada.wav')
     bau_sound = pygame.mixer.Sound('../assets/Sounds/bau.wav')
     buraco_sound = pygame.mixer.Sound('../assets/Sounds/buraco.wav')
+    
+    ## Modificando o volume
     bau_sound.set_volume(0.5)
     buraco_sound.set_volume(0.1)
     encontrou_nada_sound.set_volume(0.1)
     
-    sounds = {'encontrou_nada': encontrou_nada_sound,
+    result = {'encontrou_nada': encontrou_nada_sound,
               'bau': bau_sound,
               'buraco': buraco_sound}
     
-    ## Cache animation
+    return result
+
+def main():
+    from dotenv import load_dotenv
+    load_dotenv()
+    path_json = os.getenv("PATH_JSON")
+    path_json_restart = os.getenv("PATH_JSON_RESTART")
+    
+    ## Inicializações do pygame
+    pygame.init()
+    pygame.font.init()
+    pygame.mixer.init()
+    clock = pygame.time.Clock()
+    run = True
+    
+    sounds = cache_sound()
+    
+    ## --------------------------------------------------------------------
+    ## Cache animation 
     from utils.animation import load_animation_bau, load_animation_buraco
     cache_animation_bau = load_animation_bau()
     cache_animation_buraco = load_animation_buraco()
 
-
-    #print(cache_animation_bau)
-    offset_x_game, offset_y_game = 100, 70
+    ## --------------------------------------------------------------------
+    ## Screens do Cabeçalho, Centro e Rodapé
+    from configs.screen import config_screens as screens
+    config_screen = screens(w_display=700, h_display=700)
     
+    w_game, h_game= config_screen[1] # Posições H e W da surface de game, posição H da surface do cabeçalho
+    display, surface_game, surface_point, surface_head = config_screen[0] # Surfaces e Display
     
-    w_display, h_display = 700, 700
-    ##
+    ## --------------------------------------------------------------------
+    ## Carregando o modulo para manipulação do json
     from utils.json_manager import write_json, read_json, write_json_restart
-    path_json = os.path.join( os.getcwd(), 'configs', 'parametros.json' )
-    path_json_restart = os.path.join( os.getcwd(), 'configs', 'parametros_restart.json' )
     write_json_restart(path_json, path_json_restart)
-    ##
-    from configs.screen import main as screens
-    config_screen = screens(w_display=w_display, h_display=h_display)
     
-    w_game, h_game, h_head= config_screen[1]
-    display, surface_game, surface_point, surface_head = config_screen[0]
-    
-    ## 
+    ## --------------------------------------------------------------------
+    ## Carregando o modulo com as matrizes
     from logic.matriz import main as create_matriz
     matriz_k = create_matriz(width = w_game,
                              height = h_game)
     
-    ## 
+    ## --------------------------------------------------------------------
+    ## Carregando o modulo com os backgrounds 
     from utils.background import background_surface_game, background_display, back_player_atual, back_points
     background_surface_game(screen=surface_game,
                             matriz=matriz_k)
 
     background_display(display)
     
-    ##
+    ## --------------------------------------------------------------------
+    ## Carregando o modulo com as cores
     from utils.pallet_color import pallet_color, color_barra
     pallet_color_ = pallet_color()
     
-    ##
-    from utils.fonts import main as fonts             
-      
-    ##
+    ## --------------------------------------------------------------------
+    ## Outros modulos
+    #1 - Fonts
+    from utils.fonts import main as fonts 
+    
+    #2 - Todos os blits
     from logic.blit_elements import blit_element, blit_play_atual, atualizacao_points
     
-    
-    ##
+    #3 - Lógica de click e validação de jogada
     from logic.click import click, jogadas
-      
-    ##
-    from logic.search_elements import search_elements  
     
-    ##
+    ## --------------------------------------------------------------------
+    ## Carregando o modulo com os backgrounds 
     from utils.background import back_progresso, front_progresso
-    rect_prog = pygame.Rect((170, 10, 530, 40))
+    rect_barra_tempo = pygame.Rect((170, 10, 530, 40))
+    
+    def count_bar_time(status_bar, get_time, reset):
+        total_jogadas = read_json(path_json)['total_jogos']
+        if total_jogadas < 16:
+            
+            if reset == True:
+                blit_bar_time( status_bar['larg_max'] )
+                status_bar['termino'] = False
+                status_bar['progresso'] = status_bar['larg_max']
+                write_json(path_json, 'status_bar', status_bar)
+                
+            if status_bar['termino'] == False:
+                valor = status_bar['larg_max']/(get_time/0.1)
+                status_bar['progresso'] -= valor
+                blit_bar_time( int(status_bar['progresso']) )
+                write_json(path_json, 'status_bar', status_bar)
+                
+            if status_bar['progresso'] < 0 :
+                status_bar['termino'] = True
+                write_json(path_json, 'status_bar', status_bar)
+            
+            if status_bar['termino'] == True:
+                blit_bar_time( status_bar['larg_max'] )
+                status_bar['progresso'] = status_bar['larg_max']
+                write_json(path_json, 'status_bar', status_bar)
+                        
+    def blit_bar_time (largura):
+        #Blit back
+        back_progresso(surface_head, rect_barra_tempo)
+        
+        status_bar = read_json(path_json)['status_bar']
+        color = color_barra(status_bar)
+        pygame.draw.rect(surface_head, color, (170, 18, largura, 28))
+
+        #Blit front
+        front_progresso(surface_head, rect_barra_tempo)
+
     
     for i in matriz_k:
         print('| ', end='')
@@ -92,61 +138,27 @@ def main():
     total_jogadas = 0
     ###############
     
-    
-    ## Blit da estrutura da barra de regressão do tempo    
-    def count_bar_time(status_bar, get_time, reset):
-        if reset == True:
-            blit_bar_time( status_bar['larg_max'] )
-            status_bar['termino'] = False
-            status_bar['progresso'] = status_bar['larg_max']
-            write_json(path_json, 'status_bar', status_bar)
-            
-        if status_bar['termino'] == False:
-            valor = status_bar['larg_max']/(get_time/0.1)
-            status_bar['progresso'] -= valor
-            blit_bar_time( int(status_bar['progresso']) )
-            write_json(path_json, 'status_bar', status_bar)
-            
-        if status_bar['progresso'] < 0 :
-            status_bar['termino'] = True
-            write_json(path_json, 'status_bar', status_bar)
-        
-        if status_bar['termino'] == True:
-            blit_bar_time( status_bar['larg_max'] )
-            status_bar['progresso'] = status_bar['larg_max']
-            write_json(path_json, 'status_bar', status_bar)
-                      
-    def blit_bar_time (largura):
-        #Blit back
-        back_progresso(surface_head, rect_prog)
-        
-        #Blit maio
-        status_bar = read_json(path_json)['status_bar']
-        color = color_barra(status_bar)
-        pygame.draw.rect(surface_head, color, (170, 18, largura, 28))
-
-        #Blit front
-        front_progresso(surface_head, rect_prog)
-    #############################################
     # Inicia o jogo
     name_player = read_json(path_json)['name_player']
     jogada = read_json(path_json)['jogada']
     history_points = read_json(path_json)['history_points']
     
     
-    blit_play_atual(#jogada = jogada,
-                    name_player = name_player,
+    blit_play_atual(name_player = name_player,
                     pallet_color = pallet_color_,
                     back_player_atual = back_player_atual,
                     surface_head = surface_head)
 
-    atualizacao_points(surface = surface_point, 
-                       history_points = history_points, 
-                       name_player = name_player, 
-                       back_points = back_points, 
+    atualizacao_points(surface = surface_point,
+                       background_points = back_points, 
                        pallet_color = pallet_color_)
     
+    ### Responsáveis por orquestrar 
     frame_animation = {'frame_atual': 0, 'concluido': False}
+    blit_elements_click = {'status': 0, 'validacao': False, 'qtd_bau': None, 'rect_element': None, 'screen': None, 'animation': None}
+    
+    ## É para deslocar a surface do game, deixando ela centralizada
+    offset_x_game, offset_y_game = 100, 70
     
     while run:
         
@@ -174,56 +186,58 @@ def main():
                 
             
                 ##         
-                if not blit_elements_click['validacao']:
-                    ## Verificação de qual rect foi clicado {qtd_bau, status, element, click_valido}
-                    qtd_bau, status, element, click_valido = click(click_user=posicao_click, matriz=matriz_k, search_elements=search_elements)
+                if not blit_elements_click['validacao']: #val= True (animação em andamento), val = False (animação finalizada). Trava enquanto animação tá em andamento
                     
-                    ## Validação do Click
-                    total_jogadas, validacao_jogada = jogadas ( click_valido = click_valido, 
-                                                                element = element, 
-                                                                status = status,
-                                                                total_jogadas = total_jogadas,
-                                                                max_jogadas = max_jogadas, 
-                                                                history_points = history_points, 
-                                                                history_rects = history_rects,
-                                                                sounds = sounds ) 
+                    ## 1. Valido o click
+                    element = click(click_user=posicao_click, matriz=matriz_k)
+                    
+                    result_modulo_click = read_json(path_json)['return_click']
+                    
+                    ## 2. Valido a jogada
+                    validacao_jogada, history_rects = jogadas ( click_valido = result_modulo_click['click_valido'], 
+                                                                               element = element, 
+                                                                               status = result_modulo_click['status'],
+                                                                               max_jogadas = max_jogadas, 
+                                                                               history_rects = history_rects,
+                                                                               sounds = sounds ) 
+                    ## 3. Jogada foi válida?
                     if validacao_jogada:
-                        if status == 1: cache_animation = cache_animation_bau
-                        if status == -1: cache_animation = cache_animation_buraco
-                        if status == 0: cache_animation = []
+                        if result_modulo_click['status'] == 1: cache_animation = cache_animation_bau
+                        if result_modulo_click['status'] == -1: cache_animation = cache_animation_buraco
+                        if result_modulo_click['status'] == 0: cache_animation = []
 
+                        ## Atualiza as informações a serem repassadas ao blit que faz animação
                         blit_elements_click.update({
                                                     'validacao': True,
-                                                    'status': status, 
-                                                    'qtd_bau': qtd_bau,
+                                                    'status': result_modulo_click['status'], 
+                                                    'qtd_bau': result_modulo_click['qtd_bau'],
                                                     'rect_element': element,
                                                     'screen': surface_game,
                                                     'animation': cache_animation
                                                     })
                         
                         name_player = read_json(path_json)['name_player']
-
+                        
+                        ## Atualiza o nome que está ao lado da barra de tempo 
                         blit_play_atual(name_player = name_player,
                                         pallet_color = pallet_color_,
                                         back_player_atual = back_player_atual,
                                         surface_head = surface_head)
-            
+
+                        ## Reset na barra de tempo
                         count_bar_time( status_bar = status_bar, 
                                         get_time = time_clock, 
                                         reset = True )
-            
+
+                        ## Atualiza a pontuação no rodapé
                         atualizacao_points( surface = surface_point, 
-                                            history_points = history_points, 
-                                            name_player = name_player, 
-                                            back_points = back_points, 
+                                            background_points = back_points, 
                                             pallet_color = pallet_color_ )
         
 
         if blit_elements_click['validacao'] and run:
             
-            blit_element( status=blit_elements_click['status'], 
-                          qtd_baus=blit_elements_click['qtd_bau'],
-                          rect_element=blit_elements_click['rect_element'],
+            blit_element( rect_element=blit_elements_click['rect_element'],
                           screen=blit_elements_click['screen'],
                           animation =blit_elements_click['animation'],
                           frame_animation = frame_animation )
