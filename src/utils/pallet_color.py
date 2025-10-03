@@ -4,7 +4,6 @@ def pallet_color():
         'cinza_escuro': '#0D0D0D',
         'alaranjado': '#F2A649',
         'branco': '#FFFFFF'
-        
     }
     
     return pallet_color_

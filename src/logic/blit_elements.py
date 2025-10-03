@@ -2,7 +2,13 @@ from utils.fonts import main as fonts
 import pygame
 from utils.pallet_color import pallet_color
 
-def blit_play_atual (jogada, name_player, pallet_color, back_player_atual, surface_head):
+from utils.json_manager import write_json, read_json, write_json_restart
+import os
+
+def blit_play_atual (name_player, pallet_color, back_player_atual, surface_head):
+        path_json = os.path.join( os.getcwd(), 'configs', 'parametros.json' )
+        jogada = read_json(path_json)['jogada']
+        
         rect_play_atual = pygame.Rect((20, 10, 135, 50))
         
         font = fonts(30)
@@ -53,7 +59,6 @@ def blit_element(status:int , qtd_baus:int, rect_element, screen,  animation:lis
                element = rect_element,
                frame_animation = frame_animation)
 
-
     if status == -1:   
         render(lista_animation = animation, 
                screen = screen,
@@ -69,6 +74,7 @@ def atualizacao_points(surface, history_points, name_player, back_points,  palle
             texto = font.render(str(info_text), True, color)
             texto_rect = texto.get_rect(center=rect_center.center)
             surface.blit(texto, texto_rect)
+        
         #p
         rect_play_01 = pygame.Rect((0,0,140,40))
         rect_play_01.left = 95

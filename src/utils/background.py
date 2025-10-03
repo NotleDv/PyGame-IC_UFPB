@@ -50,8 +50,9 @@ def background_display(screen):
 def background_surface_game(screen, matriz):
         
     for index, i in enumerate(matriz):    
+        
         for index_j, element in enumerate(i): 
-            
+    
             img = pygame.image.load('../assets/Background_game.png')
             img_w = img.get_width()
             img_h = img.get_height()

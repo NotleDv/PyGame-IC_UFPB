@@ -1,0 +1,29 @@
+{
+  "jogada": {
+    "jogada_atual": 0,
+    "player_atual": "play_01",
+    "jogada_anterior": 0,
+    "player_anterior": "play_02"
+  },
+  "history_points": {
+    "play_01": 0,
+    "play_02": 0
+  },
+  "name_player": {
+    "play_01": "name_01",
+    "play_02": "name_02"
+  },
+  "blit_elements_click": {
+    "status": 0,
+    "validacao": false,
+    "qtd_bau": null,
+    "rect_element": null,
+    "screen": null,
+    "animation": null
+  },
+  "status_bar": {
+    "larg_max": 530,
+    "progresso": 530,
+    "termino": false
+  }
+}
