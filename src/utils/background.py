@@ -67,4 +67,23 @@ def background_display_escolha_nomes(screen):
     img = pygame.image.load("../assets/tplayers.png")
     img = pygame.transform.scale(img, (700, 700))
     screen.blit(img, (0,0))
+
+def background_final(screen):
+    tela_final = pygame.image.load("../assets/fundo.png")
+    tela_final = pygame.transform.scale(tela_final, (700,700))
+    screen.blit(tela_final,(0,0))
+    icon_return = pygame.image.load("../assets/return.png")
+    screen.blit(icon_return, (538,469))
+    rect_return = pygame.Rect(538,469,41,37)
     
+    #alterar o ícone do mouse e leve sombreamento ao passar com o cursor do mouse por cima do botão de retorno
+    mouse_pos = pygame.mouse.get_pos()
+    if rect_return.collidepoint(mouse_pos):
+        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+        overlay = pygame.Surface(rect_return.size, pygame.SRCALPHA)
+        overlay.fill((0,0,0,50))
+        screen.blit(overlay, (538, 469))
+    
+    else:
+        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+     

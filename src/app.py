@@ -3,22 +3,6 @@ import sys, os
 from dotenv import load_dotenv
 # x, y
 # largura. altura
-def cache_sound ():
-    ## Carregando as músicas
-    encontrou_nada_sound = pygame.mixer.Sound('../assets/Sounds/encontrou_nada.wav')
-    bau_sound = pygame.mixer.Sound('../assets/Sounds/bau.wav')
-    buraco_sound = pygame.mixer.Sound('../assets/Sounds/buraco.wav')
-    
-    ## Modificando o volume
-    bau_sound.set_volume(0.5)
-    buraco_sound.set_volume(0.1)
-    encontrou_nada_sound.set_volume(0.1)
-    
-    result = {'encontrou_nada': encontrou_nada_sound,
-              'bau': bau_sound,
-              'buraco': buraco_sound}
-    
-    return result
 
 def main():
     from dotenv import load_dotenv
@@ -33,7 +17,6 @@ def main():
     clock = pygame.time.Clock()
     run = True
     
-    sounds = cache_sound()
     
     ## --------------------------------------------------------------------
     ## Cache animation 
@@ -199,7 +182,7 @@ def main():
                                                                                status = result_modulo_click['status'],
                                                                                max_jogadas = max_jogadas, 
                                                                                history_rects = history_rects,
-                                                                               sounds = sounds ) 
+                                                                                sounds=[]) 
                     ## 3. Jogada foi válida?
                     if validacao_jogada:
                         if result_modulo_click['status'] == 1: cache_animation = cache_animation_bau

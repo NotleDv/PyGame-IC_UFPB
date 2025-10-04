@@ -34,23 +34,17 @@ def click (click_user:tuple, matriz):
     else:
         return None       
 
-def jogadas(click_valido, max_jogadas, element, history_rects, status, sounds):
+def jogadas(click_valido, element, history_rects, status, sounds):
         load_dotenv()
         path_json = os.getenv("PATH_JSON")
+        dados_json = read_json(path_json)
         
-        jogada = read_json(path_json)['jogada']
-        history_points = read_json(path_json)['history_points']
-        
-        # Verificando se já acabou o jogo
-        total_jogadas = read_json(path_json)['total_jogos']
-        if total_jogadas >= max_jogadas:
-            pontucao_total_play_01 = history_points['play_01']
-            pontucao_total_play_02 = history_points['play_02']
-            print(f'>>>> Fim de jogo!! Play_01: {pontucao_total_play_01} | Play_02: {pontucao_total_play_02}')  
-            return total_jogadas
+        history_points = dados_json['history_points']
+        jogada = dados_json['jogada']
+        total_jogadas = dados_json['total_jogos']
         
         # Caso o tempo tenha acabo e houve click
-        status_bar = read_json(path_json)['status_bar']
+        status_bar = dados_json['status_bar']
         if status_bar['termino']:
              print("Tempo acabou")
              return total_jogadas
@@ -66,24 +60,29 @@ def jogadas(click_valido, max_jogadas, element, history_rects, status, sounds):
         
         ## Verifica a pontuação e dispara o efeito sonoro
         sfx = sounds['sfx']
-        channels = sounds['channels']
-        potucao = 0
-        if status == 1:
-            potucao = 100
-            # CORREÇÃO: Use o canal específico para tocar o som
-            channels['bau'].play(sfx['bau'])
-        
-        if status == -1:
-            potucao = -50
-            channels['buraco'].play(sfx['buraco'])
-            
-        if status == 0:
-            channels['nada'].play(sfx['nada'])        
+        channels = sounds['channels']       
            
         ## Verifica se o rect clicado é valido, e se ele não foi cliado antes
         validacao_jogada = False
+        
         if click_valido and element_valido:
+            
             validacao_jogada = True
+            
+            ## Pontuação e efeito sonoro ---------------
+            potucao = 0
+            if status == 1:
+                potucao = 100
+                # CORREÇÃO: Use o canal específico para tocar o som
+                channels['bau'].play(sfx['bau'])
+            
+            if status == -1:
+                potucao = -50
+                channels['buraco'].play(sfx['buraco'])
+                
+            if status == 0:
+                channels['nada'].play(sfx['nada']) 
+            
             # Atualiza pontuação
             history_points[player_atual] = max(0, history_points[player_atual] + potucao)
             write_json(path_json, 'history_points', history_points)

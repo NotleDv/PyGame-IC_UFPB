@@ -6,17 +6,20 @@ from utils.json_manager import read_json
 import os
 from dotenv import load_dotenv
 
-def blit_play_atual (name_player, pallet_color, back_player_atual, surface_head):
+def blit_play_atual (back_player_atual, surface_head):
+    rect_play_atual = pygame.Rect((20, 10, 135, 50))
+    
     load_dotenv()
     path_json = os.getenv("PATH_JSON")
     jogada = read_json(path_json)['jogada']
+    player_atual = jogada['player_atual']
+    name_player = read_json(path_json)['name_player']
     
-    rect_play_atual = pygame.Rect((20, 10, 135, 50))
     
     font = fonts(30)
-    player_atual = jogada['player_atual']
+    pallet_color_ = pallet_color()
     #print(player_atual)
-    texto = font.render(str(name_player[player_atual]), True, pallet_color['cinza'])
+    texto = font.render(str(name_player[player_atual]), True, pallet_color_['cinza'])
     texto_rect = texto.get_rect(center=rect_play_atual.center)
     back_player_atual(surface_head)
     surface_head.blit(texto, texto_rect)
@@ -39,7 +42,7 @@ def blit_element(rect_element, screen, animation:list, frame_animation, font_set
 
         img = pygame.image.load(lista_animation[frame_animation['frame_atual']]).convert_alpha()
     
-        img.set_colorkey((0, 0, 0), pygame.RLEACCEL)
+        #img.set_colorkey((0, 0, 0), pygame.RLEACCEL)
         img_w = img.get_width()
         img_h = img.get_height()
         img = pygame.transform.scale(img, (img_w/7, img_h/7))
@@ -69,7 +72,7 @@ def blit_element(rect_element, screen, animation:list, frame_animation, font_set
                element = rect_element,
                frame_animation = frame_animation)
         
-def atualizacao_points(surface, background_points,  pallet_color):
+def atualizacao_points(surface, background_points):
         load_dotenv()
         path_json = os.getenv("PATH_JSON")
 
@@ -79,6 +82,8 @@ def atualizacao_points(surface, background_points,  pallet_color):
         
         rect_point = pygame.Rect((0, 0, 700, 100))
         background_points(surface, rect_point)
+        
+        pallet_color_ = pallet_color()
         
         def create_text(size_font, info_text, rect_center, surface, color, type_font='default'):
             font = fonts(size_font, type_font)
@@ -94,7 +99,7 @@ def atualizacao_points(surface, background_points,  pallet_color):
                     info_text=name_player['play_01'],
                     rect_center=rect_play_01,
                     surface=surface,
-                    color= pallet_color['branco'],
+                    color= pallet_color_['branco'],
                     type_font='point_normal') 
             
         rect_play_02 = pygame.Rect((0,0,140,40))
@@ -104,7 +109,7 @@ def atualizacao_points(surface, background_points,  pallet_color):
                     info_text=name_player['play_02'],
                     rect_center=rect_play_02,
                     surface=surface,
-                    color=pallet_color['branco'],
+                    color=pallet_color_['branco'],
                     type_font='point_normal')
         #pp
         rect_point_p1 = pygame.Rect((0,0,93,40))
@@ -114,8 +119,8 @@ def atualizacao_points(surface, background_points,  pallet_color):
                     info_text=history_points['play_01'],
                     rect_center=rect_point_p1,
                     surface=surface,
-                    color=pallet_color['alaranjado'],
-                    type_font='point_negrito')
+                    color=pallet_color_['alaranjado'],
+                    type_font='point_normal')
         
         rect_point_p2 = pygame.Rect((0,0,93,40))
         rect_point_p2.left = 378
@@ -124,8 +129,8 @@ def atualizacao_points(surface, background_points,  pallet_color):
                     info_text=history_points['play_02'],
                     rect_center=rect_point_p2,
                     surface=surface,
-                    color=pallet_color['alaranjado'],
-                    type_font='point_negrito')
+                    color=pallet_color_['alaranjado'],
+                    type_font='point_normal')
         
 def blit_name_player(screen, rect_player_1, rect_player_2):
     load_dotenv()

@@ -24,8 +24,11 @@
     "termino": false
   },
   "total_jogos": 0,
+  
   "tela_atual": "menu",
+  
   "campo_ativo_name": 1,
+  
   "frame_animation": {
     "frame_atual": 0,
     "concluido": false
