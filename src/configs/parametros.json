@@ -6,28 +6,28 @@
     "player_anterior": "play_02"
   },
   "history_points": {
-    "play_01": 200,
-    "play_02": 350
+    "play_01": 0,
+    "play_02": 0
   },
   "name_player": {
-    "play_01": "asdfas",
-    "play_02": "asdfsff2"
+    "play_01": "zsdfas",
+    "play_02": "asf2"
   },
   "return_click": {
-    "qtd_bau": 1,
-    "status": 1,
-    "click_valido": true
+    "qtd_bau": null,
+    "status": null,
+    "click_valido": false
   },
   "status_bar": {
     "larg_max": 530,
-    "progresso": 501.6019773081694,
+    "progresso": 502.34486309670854,
     "termino": false
   },
-  "total_jogos": 16,
-  "tela_atual": "final",
+  "total_jogos": 0,
+  "tela_atual": "jogo",
   "campo_ativo_name": 2,
   "frame_animation": {
-    "frame_atual": 3,
+    "frame_atual": 0,
     "concluido": false
   }
 }

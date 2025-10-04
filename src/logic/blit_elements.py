@@ -153,3 +153,52 @@ def blit_name_player(screen, rect_player_1, rect_player_2):
     
     screen.blit(bot_retornar,(100,610))
     screen.blit(bot_avanca, (480,595))
+    
+def blit_tabela_final(screen):
+    
+    pallet_color_ = pallet_color()
+    
+    load_dotenv()
+    path_json = os.getenv("PATH_JSON")
+    pontuação = read_json(path_json)["history_points"]
+    name_player = read_json(path_json)["name_player"]
+    
+    #placar com pontuação e nomes dos jogadores, com a maior pontuação sendo sempre a primeira
+    name_ganhador, name_perdedor = '', ''
+    pontuação_ganhador, pontuacao_perdedor = 0, 0
+    
+    if pontuação["play_01"] > pontuação["play_02"]: 
+        name_ganhador = name_player["play_01"]
+        name_perdedor = name_player["play_02"]
+        pontuação_ganhador, pontuacao_perdedor = pontuação["play_01"], pontuação["play_02"]
+    else:
+        name_ganhador = name_player["play_02"]
+        name_perdedor = name_player["play_01"]
+        pontuação_ganhador, pontuacao_perdedor = pontuação["play_02"], pontuação["play_01"]
+    
+    base_rect_texto_1 = pygame.Rect((165,250, 173, 65))
+    base_rect_texto_2 = pygame.Rect((183,340, 160, 55))
+    
+    base_rect_potuacao_1 = pygame.Rect((425,250, 103, 65))
+    base_rect_potuacao_2 = pygame.Rect((423,340, 90, 55))
+
+            
+    font_1 = fonts(50, 'default')
+    texto_1 = font_1.render(name_ganhador, True, pallet_color_['cinza'])
+    rect_texto_1 = texto_1.get_rect(center=base_rect_texto_1.center)
+    screen.blit(texto_1, rect_texto_1)
+    
+    font_2 = fonts(40, 'default')
+    texto_2 = font_2.render(name_perdedor, True, pallet_color_['cinza'])
+    rect_texto_2 = texto_2.get_rect(center=base_rect_texto_2.center)
+    screen.blit(texto_2, rect_texto_2)
+    
+    font_3 = fonts(70, 'default')
+    texto_3 = font_3.render(str(pontuação_ganhador), True, pallet_color_['cinza'])
+    rect_texto_3 = texto_3.get_rect(center=base_rect_potuacao_1.center)
+    screen.blit(texto_3, rect_texto_3)
+    
+    font_4 = fonts(60, 'default')
+    texto_4 = font_4.render(str(pontuacao_perdedor), True, pallet_color_['cinza'])
+    rect_texto_4 = texto_4.get_rect(center=base_rect_potuacao_2.center)
+    screen.blit(texto_4, rect_texto_4)
