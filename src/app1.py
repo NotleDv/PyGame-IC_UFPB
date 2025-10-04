@@ -2,21 +2,47 @@ import pygame, time
 import sys, os
 from dotenv import load_dotenv
 from pygame.locals import * 
+
 def cache_sound ():
-    ## Carregando as músicas
+    pygame.mixer.init()
+    pygame.mixer.set_num_channels(32)
+    pygame.mixer.set_reserved(4) 
+    
+    # Canais
+    canal_musica = pygame.mixer.Channel(0)
+    canal_sfx_bau = pygame.mixer.Channel(1)
+    canal_sfx_buraco = pygame.mixer.Channel(2)
+    canal_sfx_nada = pygame.mixer.Channel(3)
+    
+    # Música de fundo (BG = background)
+    sound_bg = pygame.mixer.Sound('../assets/Sounds/sound_bg.wav')
+    sound_bg.set_volume(0.2)
+    # CORREÇÃO: Toque a música no canal que você reservou para ela
+    canal_musica.play(sound_bg, -1) # -1 para tocar em loop
+    
+    # Efeitos Sonoros (SFX = sound effects)
     encontrou_nada_sound = pygame.mixer.Sound('../assets/Sounds/encontrou_nada.wav')
     bau_sound = pygame.mixer.Sound('../assets/Sounds/bau.wav')
     buraco_sound = pygame.mixer.Sound('../assets/Sounds/buraco.wav')
     
-    ## Modificando o volume
     bau_sound.set_volume(0.5)
     buraco_sound.set_volume(0.1)
     encontrou_nada_sound.set_volume(0.1)
     
-    result = {'encontrou_nada': encontrou_nada_sound,
-              'bau': bau_sound,
-              'buraco': buraco_sound}
-    
+    # CORREÇÃO: Retorne os sons E os canais em um único dicionário
+    result = {
+        'sfx': {
+            'nada': encontrou_nada_sound,
+            'bau': bau_sound,
+            'buraco': buraco_sound
+        },
+        'channels': {
+            'musica': canal_musica,
+            'bau': canal_sfx_bau,
+            'buraco': canal_sfx_buraco,
+            'nada': canal_sfx_nada
+        }
+    }
     return result
 
 def main():
@@ -53,7 +79,7 @@ def main():
     ## Carregando o modulo para manipulação do json
     from utils.json_manager import write_json, read_json, write_json_restart
     write_json_restart(path_json, path_json_restart)
-    json_
+    
     
     ## --------------------------------------------------------------------
     ## Carregando o modulo com as matrizes
@@ -189,7 +215,6 @@ def main():
     run = True
     ### Rian
     def troca_tela(event):
-        print('aa')
         if event.type == MOUSEBUTTONDOWN:
             tela_atual = read_json(path_json)['tela_atual']
             
@@ -392,7 +417,32 @@ def main():
                            get_time = time_clock, 
                            reset = True)
     
+    def draw_and_update_game_screen(time_clock, blit_elements_click):
+        """Esta função é chamada a cada quadro para desenhar e animar."""
+        # Desenha os elementos estáticos
+        if count_background == 0: 
+            background_display(display)
+            atualizacao_points( surface=surface_point, background_points=back_points, pallet_color=pallet_color_ )
+
+            blit_play_atual(name_player = name_player,
+                            pallet_color = pallet_color_,
+                            back_player_atual = back_player_atual,
+                            surface_head = surface_head)
+            
+        display.blit(surface_game, (offset_x_game, offset_y_game))
+        display.blit(surface_head, (0, 0))
+        display.blit(surface_point, (0, 600))
+        
+        # Funções que rodam continuamente
+        status_bar = read_json(path_json)['status_bar']
+        count_bar_time(status_bar, time_clock, reset=None)
+        animation(run, blit_elements_click)
+        bar_time(run, blit_play_atual, count_bar_time)
+        
     event = ''
+    count_background = 0
+    
+    
     while run:
         
         clock.tick(30)
@@ -412,6 +462,8 @@ def main():
             
             troca_tela(event)
             input_text_user(event)
+            if tela_atual == "jogo" and event.type == MOUSEBUTTONDOWN:               
+                game(event, time_clock, blit_elements_click, history_rects)
             
         if tela_atual == "menu":
             background_display_menu(display)
@@ -421,12 +473,9 @@ def main():
 
         
         if tela_atual == "jogo":
-            background_display(display)
-            game(event, time_clock, blit_elements_click, history_rects)
-            animation(run, blit_elements_click)
-            bar_time(run, blit_play_atual, count_bar_time)
+            draw_and_update_game_screen(time_clock, blit_elements_click)
             #tela.blit(telaini, (0,0))  
-
+            
         pygame.display.update()
 
 if __name__ == '__main__':

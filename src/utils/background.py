@@ -43,10 +43,6 @@ def background_display(screen):
     img = pygame.transform.scale(img, (img_w/1.4, img_h/1.4))
     screen.blit(img, (0, 0))
     
-    sound = pygame.mixer.Sound('../assets/Sounds/sound_bg.wav')
-    sound.set_volume(0.2)
-    sound.play(-1)
-    
 def background_surface_game(screen, matriz):
         
     for index, i in enumerate(matriz):    

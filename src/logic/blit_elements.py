@@ -15,7 +15,7 @@ def blit_play_atual (name_player, pallet_color, back_player_atual, surface_head)
     
     font = fonts(30)
     player_atual = jogada['player_atual']
-    print(player_atual)
+    #print(player_atual)
     texto = font.render(str(name_player[player_atual]), True, pallet_color['cinza'])
     texto_rect = texto.get_rect(center=rect_play_atual.center)
     back_player_atual(surface_head)

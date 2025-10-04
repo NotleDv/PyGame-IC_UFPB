@@ -34,7 +34,7 @@ def click (click_user:tuple, matriz):
     else:
         return None       
 
-def jogadas(click_valido, max_jogadas, sounds, element, history_rects, status):
+def jogadas(click_valido, max_jogadas, element, history_rects, status, sounds):
         load_dotenv()
         path_json = os.getenv("PATH_JSON")
         
@@ -65,18 +65,21 @@ def jogadas(click_valido, max_jogadas, sounds, element, history_rects, status):
             element_valido = True
         
         ## Verifica a pontuação e dispara o efeito sonoro
+        sfx = sounds['sfx']
+        channels = sounds['channels']
         potucao = 0
         if status == 1:
             potucao = 100
-            sounds['bau'].play()
-            
+            # CORREÇÃO: Use o canal específico para tocar o som
+            channels['bau'].play(sfx['bau'])
+        
         if status == -1:
             potucao = -50
-            sounds['buraco'].play()
+            channels['buraco'].play(sfx['buraco'])
             
         if status == 0:
-            sounds['encontrou_nada'].play()
-            
+            channels['nada'].play(sfx['nada'])        
+           
         ## Verifica se o rect clicado é valido, e se ele não foi cliado antes
         validacao_jogada = False
         if click_valido and element_valido:
