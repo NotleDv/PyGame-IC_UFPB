@@ -79,11 +79,8 @@ def background_final(screen):
     #alterar o ícone do mouse e leve sombreamento ao passar com o cursor do mouse por cima do botão de retorno
     mouse_pos = pygame.mouse.get_pos()
     if rect_return.collidepoint(mouse_pos):
-        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
         overlay = pygame.Surface(rect_return.size, pygame.SRCALPHA)
         overlay.fill((0,0,0,50))
         screen.blit(overlay, (538, 469))
-    
-    else:
-        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+
      
