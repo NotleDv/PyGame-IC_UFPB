@@ -4,7 +4,7 @@ from utils.fonts import main as fonts
 from utils.background import background_display_escolha_nomes
 from logic.blit_elements import blit_name_player
 
-def tela_nomes(display, campo_player1, campo_player2):
+def barrinha_da_tela_de_nomes(display, campo_player1, campo_player2):
     path_json = os.getenv("PATH_JSON")
     
     campo_ativo = read_json(path_json)['campo_ativo_name'] 
@@ -15,7 +15,6 @@ def tela_nomes(display, campo_player1, campo_player2):
     name_player = read_json(path_json)['name_player']
     
     font = fonts(50)
-    fonte = pygame.font.SysFont(None, 50)
     if campo_ativo == 1:
         # Calcula a largura usando o texto ATUAL do JSON
         largura_texto = font.size(name_player['play_01'])[0]
@@ -71,11 +70,13 @@ def input_text_user(event):
         ##  Aqui é aonde ocorre a escrita
         campo_ativo = read_json(path_json)['campo_ativo_name']
             ##unicode.isprintable() garante que o 'Enter' não seja convertido em texto
+       
         if event.unicode.isprintable() and len(event.unicode) > 0:
             name_player = read_json(path_json)['name_player']
             
             if campo_ativo == 1 and len(name_player['play_01']) < 8:
                 name_player['play_01'] += event.unicode
+                
             if campo_ativo == 2 and len(name_player['play_02']) < 8:
                 name_player['play_02'] += event.unicode
                 

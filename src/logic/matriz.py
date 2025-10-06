@@ -1,5 +1,4 @@
 import pygame, random
-import numpy as np
 
 def matriz_probabilidade():
     lista = [0]*(7) + [1]*6 + [-1]*3

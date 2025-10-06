@@ -1,4 +1,4 @@
-import pygame, random
+import pygame
 
 def back_points(screen, rect_point):
     img_back = pygame.image.load('../assets/Back_Rodape.png')

@@ -1,8 +1,6 @@
 from utils.json_manager import read_json, write_json
 import os
-from utils.background import background_display
 from pygame import MOUSEBUTTONDOWN
-import pygame
 
 
 def troca_tela(event, button_start, bot_retorno, bot_avançar, campo_player1, campo_player2):
@@ -26,7 +24,7 @@ def troca_tela(event, button_start, bot_retorno, bot_avançar, campo_player1, ca
                 campo_ativo = 1
                 write_json(path_json, 'campo_ativo_name', campo_ativo)
             
-            elif campo_player2.collidepoint(event.pos):
+            if campo_player2.collidepoint(event.pos):
                 campo_ativo = 2
                 write_json(path_json, 'campo_ativo_name', campo_ativo)
                 

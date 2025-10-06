@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 def blit_play_atual (back_player_atual, surface_head):
     rect_play_atual = pygame.Rect((20, 10, 135, 50))
     
-    load_dotenv()
     path_json = os.getenv("PATH_JSON")
     jogada = read_json(path_json)['jogada']
     player_atual = jogada['player_atual']
@@ -25,7 +24,6 @@ def blit_play_atual (back_player_atual, surface_head):
     surface_head.blit(texto, texto_rect)
 
 def blit_element(rect_element, screen, animation:list, frame_animation, font_set:str = fonts):
-    load_dotenv()
     path_json = os.getenv("PATH_JSON")
     return_click = read_json(path_json)['return_click']   
     
@@ -158,7 +156,6 @@ def blit_tabela_final(screen):
     
     pallet_color_ = pallet_color()
     
-    load_dotenv()
     path_json = os.getenv("PATH_JSON")
     pontuação = read_json(path_json)["history_points"]
     name_player = read_json(path_json)["name_player"]
